@@ -1,16 +1,16 @@
 # Operations Research project
-Mathematics Department Efrei Paris
-Spring Semester 2024 - S6
-L3 INT
-1. Problem
-1.1 Introduction
+
+
+
+##1. Problem
+###1.1 Introduction
 Transportation problems are closely linked to social, economic and ecological issues. Through the
 algorithms we have seen in class, we try to understand how to lower the costs of transport in a network.
 The nature of these costs may be human, monetary or environmental.
 This project involves writing a program to solve a transportation problem. Once you’ve built the
 code, we’ll ask you to test it on the problems in the appendices, providing us with execution traces.
 Finally, you’ll have to use it to analyze the complexity generated.
-1.2 Solving transportation problems
+###1.2 Solving transportation problems
 We ask you to code the solution to the following problem : let n suppliers have provisions, called
 (Pi)i∈[[1;n]] and m customers have orders, called (Cj)j∈[[1;m]]. Each unit transport of an object between
 supplier i and customer j costs ai, j
@@ -38,11 +38,8 @@ n
 i=1 Pi = ∑
 m
 j=1Cj
-. You will also work with the programming language of your choice : C, C++,
-2
-1.3 The constraint table 3
-Python, Java.
-1.3 The constraint table
+. You will also work with the programming language of your choice : C, C++, Python, Java.
+### 1.3 The constraint table
 The first step is to create a .txt file for each transport problem, organized as follows :
 n m
 a1,1 a1,2 ... a1,m Provision P1
@@ -75,8 +72,8 @@ Transportation prices per unit are in bleu.
 In the appendices, you’ll find the 12 tables of the 12 transportation problems you’re asked to solve
 with your program. You’ll need to edit the 12 tables in 12 different .txt files in the same way. These
 files should be attached to your report.
-2. Code
-2.1 The functions
+## 2. Code
+### 2.1 The functions
 You will have to implement the following functions :
 1. Read data from text file (.txt) and store in memory.
 2. Display of the following tables :
@@ -94,8 +91,7 @@ will be severely penalized. Table legibility is fundamental.
 5. Total cost calculation for a given transport proposal.
 6. Solving algorithm : the stepping-stone method with potential.
 ⋆ Test whether the proposition is acyclic : we’ll use a Breadth-first algorithm. During the
-4
-2.2 Overall structure 5
+###2.2 Overall structure 
 algorithm run, as the vertices are discovered, we check that we’re returning to a previously
 visited vertex and that this vertex isn’t the parent of the current vertex ; if it is, then a cycle
 exists. The cycle is then displayed.
@@ -117,9 +113,10 @@ You must have the following functions working :
 ⋆ Transport maximization on a detected cycle.
 ⋆ Test whether the proposition is connected using a Breadth-first algorithm.
 ⋆ Display all tables.
-2.2 Overall structure
+### 2.2 Overall structure
 The overall structure of your program is illustrated by the following pseudo-code :
-2.3 Possible improvements 6
+### 2.3 Possible improvements 6
+```
 Start
 While the user decides to test a transportation problem, do :
 Choice of the problem number to be processed.
@@ -142,7 +139,8 @@ Display the minimal transportation proposal and its cost.
 Suggest to the user that he/she should change transportation problem
 End while
 End
-2.3 Possible improvements
+```
+### 2.3 Possible improvements
 Once the algorithm has been sufficiently tested, we suggest the following improvements :
 1. When "Modification of the transport graph to obtain a tree, in the cyclic or non connected case",
 we must first detect whether the graph has a cycle. After maximizing the transport proposal
@@ -154,10 +152,10 @@ according to increasing costs, until we obtain a connected and acyclic propositi
 happen that δ = 0, i.e. no change is made to the cycle. You can then detect this special case.
 We’ll do like this : we’ll keep the detected improving edge with the marginal costs table (if this
 is the general loop) and remove all the last edges added during the last connected test, in the
-2.4 Execution traces 7
+
 same iteration. The function "Modification of the transport graph to obtain a tree, in the non
 connected case" that follows will propose a different set of edges.
-2.4 Execution traces
+### 2.4 Execution traces 
 Execution traces for the 12 graphs provided in the appendices are requested in the rendering. An
 execution trace is what is displayed by the console. They cannot be replaced by screen copies.
 You have to run your program with the 12 problems in both cases : initial proposal North-West NW,
@@ -166,8 +164,8 @@ information previously requested.
 Files will be stored as follows :
 ⋆ Group B - Team 4 - Problem 5 - North-West : "B4-trace5-nw.txt"
 ⋆ Group D - Team 2 - Problem 12 - Balas-Hammer : "D2-trace12-bh.txt"
-3. Study of complexity
-3.1 Introduction
+## Study of complexity
+### 3.1 Introduction
 This part must be done by all teams, as soon as some of your functions are up and running. We now
 propose to study the complexity of algorithms in this project.
 First of all, what is the complexity of an algorithm ? It’s the evaluation of the resources required to
@@ -178,9 +176,9 @@ of a given algorithm. However, it is often possible to evaluate the rder of magn
 quantities in order to identify the most efficient algorithm within a set of algorithms solving the same
 problem.
 This is what we propose to do here, by comparing the transport proposals derived from the NorthWest, Balas-Hammer algorithms when solving the stepping-stone method with potential.
-8
-3.2 A short view of théory 9
-3.2 A short view of théory
+
+ 
+### 3.2 A short view of théory
 Most algorithms have an execution time that depends not only on the size of the input data, but also
 on the data itself. In this case, there are several types of complexity :
 Définition 3.1 (worst-case complexity)
@@ -198,13 +196,13 @@ Spatial complexity evaluates the consumption of memory space. The principle is t
 except that here the aim is to evaluate the order of magnitude of the memory volume used : it’s
 not a question of evaluating precisely how many bytes are consumed by an algorithm, but of
 specifying its growth rate as a function of the size n of the input.
-3.3 Study
+### 3.3 Study
 In this project, we’ll be analyzing worst-case complexity. To do this, we ask you to generate random
 transportation problems. Then look at the execution times of the algorithms.
 3.3.1 Inputs of transportation problems
 To simplify the problem, you will work with transport problems of size n = m. The matrix A =
 (ai, j)(i, j)∈[[1;n]]2 is square.
-3.3 Study 10
+### 3.3 Study 
 In order to generate a sampling of all possible inputs of the same size n, you will write a function to
 edit random transport problems. This will be done as follows :
 1. An integer random number between 1 and 100 (inclusive) is generated for each ai, j
@@ -221,7 +219,7 @@ n
 ∑
 i=1
 tempi, j
-3.3.2 Measuring time
+#### 3.3.2 Measuring time
 Once the problem has been generated, i.e. once the Pi
 , Cj and ai, j have been set, we need to store
 the time value for each portion of code we’re interested in. In Python, for example, we simply use the
@@ -232,7 +230,7 @@ With this n sized problem generated, you’ll have to measure the execution time
 2. the Balas-Hammer algorithm. We’ll call this time θBH(n),
 3. the steppin-stone algorithm with the proposal from Northwest. We’ll call this time tNW (n),
 4. the steppin-stone algorithm with the proposal from Balas-Hammer. We’ll call this time tBH(n),
-3.3.3 Scatter plot
+#### 3.3.3 Scatter plot
 For each value of n, you will run your program 100 times with different random values for the
 transportation problem. So, for a fixed n, you’ll obtain 100 values of θNO(n), for example.
 n values to be tested 10 40 102 4.102 103 4.103 104
@@ -248,7 +246,7 @@ as a function of n :
 ⋆ tBH(n).
 ⋆ (θNO +tNO)(n).
 ⋆ (θBH +tBH)(n).
-3.3.4 Worst-case complexity per algorithm
+#### 3.3.4 Worst-case complexity per algorithm
 Worst-case complexity is assumed to be the upper envelope of the scatter plot. For each value of n,
 determine this maximum value across the 100 realizations for a fixed n. Then plot this maximum value
 as a function of n.
@@ -267,21 +265,21 @@ O(k
 n
 ) (k > 1) exponential
 FIGURE 3.1 – Usual qualifier for complexity.
-3.3.5 Worst-case complexity comparison
+#### 3.3.5 Worst-case complexity comparison
 Now let’s compare the two algorithms solving the same problem for n fixed by plotting :
 tNO +θNO
 tBH +θBH
 (n)
 Then plot the maximum value found for each value of n and discuss the results.
-4. Rendering details
-4.1 Rendering
+## 4. Rendering details
+### 4.1 Rendering
 You must submit your project on Moodle by Saturday, May 4 at 11h59 p.m. No additional time will
 be accepted.
 In the repository, you’ll give all your programs, the 12 execution traces and the 12 .txt files files of
 the transportation problems to be solved. Grading will take into account the quality of the algorithms
 and traces submitted. All teams are required to submit a complexity report of no more than 5 pages.
 The rendering file will be titled as follows : for group B and team 4 : "B4".
-4.2 Oral presentation
+### 4.2 Oral presentation
 For the oral presentation, slides are expected. Pedagogy and clarity are the aim of this 10 min presentation.
 We will not accept any code on the slides : we want pseudo-code. Slides must not contain any handwritten or photographed paper.
 In the oral presentation, you will be asked to summarize the most important points of each part.
@@ -290,13 +288,13 @@ haven’t, is expected. Please note : if you exceed the 10-minute presentation t
 stop you.
 At the end of the oral, you’ll have to answer some questions during 20 min : each student will be
 questioned individually on the project or on a point from the course. The code must be clearly
-12
-4.2 Oral presentation 13
+
+### 4.2 Oral presentation 
 understood by all team members.
 Good luck with this project,
 The Operations Research teaching team.
-4.3 Appendices : the transportation proposals to be tested 14
-4.3 Appendices : the transportation proposals to be tested
+### 4.3 Appendices : the transportation proposals to be tested 14
+
 Transport unit prices are written in blue.
 1 C1 C2 Provisions
 P1 30 20 100
