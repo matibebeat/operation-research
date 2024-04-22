@@ -2,15 +2,15 @@
 
 
 
-##1. Problem
-###1.1 Introduction
+## 1. Problem
+### 1.1 Introduction
 Transportation problems are closely linked to social, economic and ecological issues. Through the
 algorithms we have seen in class, we try to understand how to lower the costs of transport in a network.
 The nature of these costs may be human, monetary or environmental.
 This project involves writing a program to solve a transportation problem. Once you’ve built the
 code, we’ll ask you to test it on the problems in the appendices, providing us with execution traces.
 Finally, you’ll have to use it to analyze the complexity generated.
-###1.2 Solving transportation problems
+### 1.2 Solving transportation problems
 We ask you to code the solution to the following problem : let n suppliers have provisions, called
 (Pi)i∈[[1;n]] and m customers have orders, called (Cj)j∈[[1;m]]. Each unit transport of an object between
 supplier i and customer j costs ai, j
@@ -91,7 +91,7 @@ will be severely penalized. Table legibility is fundamental.
 5. Total cost calculation for a given transport proposal.
 6. Solving algorithm : the stepping-stone method with potential.
 ⋆ Test whether the proposition is acyclic : we’ll use a Breadth-first algorithm. During the
-###2.2 Overall structure 
+### 2.2 Overall structure 
 algorithm run, as the vertices are discovered, we check that we’re returning to a previously
 visited vertex and that this vertex isn’t the parent of the current vertex ; if it is, then a cycle
 exists. The cycle is then displayed.
