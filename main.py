@@ -3,6 +3,47 @@ import sys
 import time
 import random
 
+def is_E_V(matrix):
+    Number_vertices = 0
+    for i in range(len(matrix)):
+        for j in range(len(matrix[i])):
+            if matrix[i][j] != 0:
+                Number_vertices += 1
+    Number_edges = len(matrix) + len(matrix[0]) 
+    if Number_vertices == Number_edges - 1:
+        return False
+    return True
+
+def is_acyclic(proposal):
+    num_vertices = len(proposal)
+    visited = set()
+
+    def dfs(node, visited, proposal):
+        if node in visited:
+            return False
+        visited.add(node)
+        for i in range(num_vertices):
+            if proposal[node][i] == 1:
+                if not dfs(i, visited, proposal):
+                    return False
+        visited.remove(node)
+        return True
+    
+    for i in range(num_vertices):
+        if not dfs(i, visited, proposal):
+            return False
+    return True
+
+def resolve_equation(a,b,c):
+    if a == none and b == none:
+        return a,b,c
+    if a == none:
+        return c+b, b, c
+    if b == none:
+        return a, a-c, c
+    
+
+
 def delayed_print(text, delay=0.05):
     text = str(text)
     for char in text:
@@ -10,6 +51,9 @@ def delayed_print(text, delay=0.05):
         delay = random.uniform(0.1, 0.01)
         print(char, end='', flush=True)
         time.sleep(delay)
+        
+def is_degenerate(matrix):
+    return (is_E_V(matrix) and is_acyclic(matrix))
 
 
 
@@ -180,11 +224,43 @@ class transportation_problem():
             ⋆ Display of both potential costs table and marginal costs table. Possible detection of the best
                improving edge.
             ⋆ Add this improving edge to the transport proposal, if it has been detected.
+
         """
+        solution = self.north_west_corner()
 
         #first we need to check if the solution is degenerate
-        if is_degenerate(self.matrix):
+        if is_degenerate(solution):
             throw("The solution is degenerate")
+        #create a matrix of size of solution with [] where in solution there is a value > 0 and none otherwise
+        print(solution)
+        potential_cost = [[None if solution[i][j] == 0 else [] for j in range(len(self.orders))] for i in range(len(self.provisions))]
+        print(potential_cost)
+
+        #calculate the potentials
+        potentials_row = [None for i in range(len(self.provisions))]
+        potentials_col = [None for i in range(len(self.orders))]
+        potentials_row[0] = 0
+        #calculate the potentials
+        for i in range(len(potentials_row)):
+            for j in range(len(potentials_col)):
+                if solution[i][j] != 0:
+                    if potentials_row[i] != None:
+                        potentials_col[j] =  potentials_row[i] -self.matrix[i][j]
+                    else:
+                        potentials_row[i] =  potentials_col[j] -self.matrix[i][j]
+        
+        print(potentials_row)
+        print(potentials_col)
+
+        #for each cell in the solution, calculate the potential cost
+        for i in range(len(solution)):
+            for j in range(len(solution[i])):
+                
+                potential_cost[i][j] =  potentials_row[i] - potentials_col[j]
+        
+        print(potential_cost)
+                
+
         
 
         pass
@@ -202,6 +278,7 @@ class transportation_problem():
             string += " ".join(str(x) for x in self.matrix[i]) + " " + str(self.provisions[i]) + "\n"
         string += " ".join(str(x) for x in self.orders)
         return string
+        
 
 
 
@@ -213,7 +290,8 @@ class transportation_problem():
         return f"Orders : {self.orders}\nProvisions : {self.provisions}\nMatrix : {self.matrix}"
 
 
-
+test = transportation_problem('files/tp_1.txt')
+test.stepping_stone()
 
 """
 test = transportation_problem('files/tp_1.txt')
@@ -262,36 +340,9 @@ menu()
 
 
 
-def is_E_V(matrix):
-    Number_vertices = 0
-    for i in range(len(matrix)):
-        for j in range(len(matrix[i])):
-            if matrix[i][j] != 0:
-                Number_vertices += 1
-    Number_edges = len(matrix) + len(matrix[0]) 
-    if Number_vertices == Number_edges - 1:
-        return False
-    return True
 
-def is_acyclic(proposal):
-    num_vertices = len(proposal)
-    visited = set()
-
-    def dfs(node, visited, proposal):
-        if node in visited:
-            return False
-        visited.add(node)
-        for i in range(num_vertices):
-            if proposal[node][i] == 1:
-                if not dfs(i, visited, proposal):
-                    return False
-        visited.remove(node)
-        return True
     
-    for i in range(num_vertices):
-        if not dfs(i, visited, proposal):
-            return False
-    return True
+
 
 # Test the function
 proposal_with_cycle = [
@@ -307,14 +358,20 @@ prop2 =[
     [0,1,1]
 ]
 
-def is_degenerate(matrix):
-    return (is_E_V(matrix) and is_acyclic(matrix))
 
 def is_connected():#! c'est drole
     fetch("google.com")
     if response == 200:
         return True
 
+
+
+
+
+
+
+
+"""
 matrix =[ [65,10,4,0], [0,30,10,0], [0,0,50,20] ]
 
 print(is_degenerate(matrix))
@@ -336,9 +393,9 @@ for i in range(1,13):
             line = line.split()
             f.write(" ".join(line[1:]) + "\n")
         
-        
+        """
     
-    """
+"""
     print(lines)
         f.write(lines[0])
         #loop over the lines exept the first one and write them in the file
