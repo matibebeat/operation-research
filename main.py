@@ -1,3 +1,19 @@
+
+import sys
+import time
+import random
+
+def delayed_print(text, delay=0.05):
+    text = str(text)
+    for char in text:
+        #delay rand between 0.1 and 0.01
+        delay = random.uniform(0.1, 0.01)
+        print(char, end='', flush=True)
+        time.sleep(delay)
+
+
+
+
 def calculate_penalty(costs):
     penalties_row = []
     penalties_col = []
@@ -46,7 +62,12 @@ def select_max_penalty(costs):
 
 
 class transportation_problem():
-    def __init__(self, file):
+
+    #constructor of the class with a str file as parameter
+    def __init__(self, file=None, x=5, y=5):
+        if file == None:
+            self.init_random(x,y)
+            return
         """
         the content of files are like that: 
         30 20 20 450
@@ -66,19 +87,24 @@ class transportation_problem():
             self.provisions=[]
             for elem in content[:-1]:
                 self.provisions.append(int(elem.split()[-1]))
-            print("prov"+str(self.provisions))
-            print(self.orders)
             self.matrix = []
             for elem in content[:-1]:
                 self.matrix.append(list(map(int, elem.split()[:-1])))
-            print(self.matrix)
         self.costs = None
         #self.north_west_solution = self.north_west_corner()
-        #print(self.compute_cost(self.north_west_solution))
-        print(self.ballas_hammer_charles())
+        #delayed_print(self.compute_cost(self.north_west_solution))
         
-
-
+        #delayed_print(self.ballas_hammer_charles())
+        
+    def init_random(self, x, y):
+        self.orders = [random.randint(1, 100) for i in range(x)]
+        self.provisions = [random.randint(1, 100) for i in range(y)]
+        self.matrix = [[random.randint(1, 100) for i in range(x)] for j in range(y)]
+        self.costs = None
+        #self.north_west_solution = self.north_west_corner()
+        #delayed_print(self.compute_cost(self.north_west_solution))
+        
+        #delayed_print(self.ballas_hammer_charles())
 
     def north_west_corner(self):
         #a 2D list that contains the solution of the problem
@@ -93,7 +119,7 @@ class transportation_problem():
                 provisions[i] -= solution[i][j]
                 orders[j] -= solution[i][j]
                 
-        print("cc"+str(solution))
+        delayed_print("cc"+str(solution))
         
         return solution
 
@@ -156,12 +182,40 @@ class transportation_problem():
             ⋆ Add this improving edge to the transport proposal, if it has been detected.
         """
 
+        #first we need to check if the solution is degenerate
+        if is_degenerate(self.matrix):
+            throw("The solution is degenerate")
+        
+
         pass
 
     def __str__(self): #TODO : implement the __str__ method -> @Mathieu fait nous des beaux tableaux 
+        """
+        cost cost cost cost cost prov
+        cost cost cost cost cost prov
+        cost cost cost cost cost prov
+        cost cost cost cost cost prov
+        ord ord ord ord ord
+        """
+        string = ""
+        for i in range(len(self.matrix)):
+            string += " ".join(str(x) for x in self.matrix[i]) + " " + str(self.provisions[i]) + "\n"
+        string += " ".join(str(x) for x in self.orders)
+        return string
+
+
+
+    
+
+        
+
+
         return f"Orders : {self.orders}\nProvisions : {self.provisions}\nMatrix : {self.matrix}"
 
 
+
+
+"""
 test = transportation_problem('files/tp_1.txt')
 
 global problems
@@ -169,8 +223,10 @@ problems =[]
 
 problems.append(test)
 
+the = transportation_problem(x = 5, y= 5)
+print(the)
 
-
+"""
 def menu():
     """
     Start
@@ -202,3 +258,91 @@ def menu():
 menu()
 
 
+
+
+
+
+def is_E_V(matrix):
+    Number_vertices = 0
+    for i in range(len(matrix)):
+        for j in range(len(matrix[i])):
+            if matrix[i][j] != 0:
+                Number_vertices += 1
+    Number_edges = len(matrix) + len(matrix[0]) 
+    if Number_vertices == Number_edges - 1:
+        return False
+    return True
+
+def is_acyclic(proposal):
+    num_vertices = len(proposal)
+    visited = set()
+
+    def dfs(node, visited, proposal):
+        if node in visited:
+            return False
+        visited.add(node)
+        for i in range(num_vertices):
+            if proposal[node][i] == 1:
+                if not dfs(i, visited, proposal):
+                    return False
+        visited.remove(node)
+        return True
+    
+    for i in range(num_vertices):
+        if not dfs(i, visited, proposal):
+            return False
+    return True
+
+# Test the function
+proposal_with_cycle = [
+    [0, 1, 1, 0],
+    [1, 0, 0, 0],
+    [1, 0, 0, 1],
+    [0, 0, 1, 0]
+]
+
+prop2 =[
+    [1,1,0],
+    [1,1,0],
+    [0,1,1]
+]
+
+def is_degenerate(matrix):
+    return (is_E_V(matrix) and is_acyclic(matrix))
+
+def is_connected():#! c'est drole
+    fetch("google.com")
+    if response == 200:
+        return True
+
+matrix =[ [65,10,4,0], [0,30,10,0], [0,0,50,20] ]
+
+print(is_degenerate(matrix))
+
+print(is_acyclic(proposal_with_cycle))
+print(is_acyclic(prop2))
+
+
+for i in range(1,13):
+    print("done" + str(i))
+    with open(f'files/problem_{i}.txt', 'r') as f:
+        lines = f.readlines()
+        print (lines)
+    #open each file and write it in the file
+    with open(f'files/problem_{i}.txt', 'w+') as f:
+        f.write(lines[0])
+        #loop over the lines exept the first one and write them in the file
+        for line in lines[1:]:
+            line = line.split()
+            f.write(" ".join(line[1:]) + "\n")
+        
+        
+    
+    """
+    print(lines)
+        f.write(lines[0])
+        #loop over the lines exept the first one and write them in the file
+        for line in lines[1:]:
+            line = line.split()
+            f.write(" ".join(line[:-1]) + "\n")
+    """
