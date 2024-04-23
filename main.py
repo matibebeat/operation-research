@@ -1,3 +1,50 @@
+def calculate_penalty(costs):
+    penalties_row = []
+    penalties_col = []
+    # Calculate penalties for rows
+    for row in costs:
+        sorted_row = sorted(row)
+        penalty = sorted_row[1] - sorted_row[0]
+        penalties_row.append(penalty)
+
+    # Calculate penalties for columns
+    transposed_costs = list(zip(*costs))
+    for col in transposed_costs:
+        sorted_col = sorted(col)
+        penalty = sorted_col[1] - sorted_col[0]
+        penalties_col.append(penalty)
+
+    return penalties_row,penalties_col # Return the penalties for rows and columns
+
+def select_max_penalty(costs):
+    penalties_row, penalties_col = calculate_penalty(costs)
+    
+    max_penalty = max(max(penalties_row), max(penalties_col))
+    max_indices = []
+
+    for i, penalty in enumerate(penalties_row):
+        if penalty == max_penalty:
+            max_indices.append(('row', i))
+    
+    for i, penalty in enumerate(penalties_col):
+        if penalty == max_penalty:
+            max_indices.append(('col', i))
+
+    max_capacity = float('-inf')
+    selected_index = None
+    for index in max_indices:
+        if index[0] == 'row':
+            min_capacity = min(costs[index[1]])
+        else:
+            min_capacity = min(row[index[1]] for row in costs)
+        
+        if min_capacity > max_capacity:
+            selected_index = index
+            max_capacity = min_capacity
+    
+    return selected_index
+
+
 class transportation_problem():
     def __init__(self, file):
         """
@@ -28,7 +75,7 @@ class transportation_problem():
         self.costs = None
         #self.north_west_solution = self.north_west_corner()
         #print(self.compute_cost(self.north_west_solution))
-        #self.ballas_hammer()
+        print(self.ballas_hammer_charles())
         
 
 
@@ -50,120 +97,39 @@ class transportation_problem():
         
         return solution
 
-    def ballas_hammer(self): #TODO : implement the ballas hammer algorithm
 
-
-
-
-
-        #!important : Not working but the beginning of the implementation is here
+    def ballas_hammer_charles(self): #!important : replace all variables nammes 
         orders = self.orders.copy()
         provisions = self.provisions.copy()
-        solution = [[None for i in range(len(orders))] for j in range(len(provisions))]
-        orders_penalty = [0 for i in range(len(orders))]
-        provisions_penalty = [0 for i in range(len(provisions))]
+        costs = self.matrix.copy()
+        allocated_costs = [[0] * len(row) for row in costs]
+
         while True:
-            for i in range(len(provisions_penalty)):
-                if provisions_penalty[i] != None:
-                    # find the 2 smallest values in the row
-                    row = self.matrix[i].copy()
-                    row.sort()
-                    provisions_penalty[i] = row[1]- row[0]
-
-            for i in range(len(orders_penalty)):
-                if orders_penalty[i] != None:
-                
-                    # find the 2 smallest values in the column
-                    column = [row[i] for row in self.matrix.copy()]
-                    column.sort()
-                    orders_penalty[i] = column[1] - column[0]   
-            # find the biggests penalty
-            penalty_to_be_solved = [ ]
-            temp = provisions_penalty.copy()
-            if None in temp:
-                temp.remove(None)
-            max_provision_penalty = max(temp)
-            for i in range(len(provisions_penalty)):
-                if provisions_penalty[i] == max_provision_penalty:
-                    penalty_to_be_solved.append([True, i, max_provision_penalty])
-            temp = orders_penalty.copy()
-            if None in temp:
-                temp.remove(None)
-            max_order_penalty = max(temp)
-            for i in range(len(orders_penalty)):
-                if orders_penalty[i] == max_order_penalty:
-                    penalty_to_be_solved.append([False, i, max_order_penalty])
-            print(penalty_to_be_solved)
-            #find the true biggest penalty
-            true_max_penalty = 0
-            for i in range(len(penalty_to_be_solved)):
-                if penalty_to_be_solved[i][2] > true_max_penalty:
-                    true_max_penalty = penalty_to_be_solved[i][2]
-            true_penalty_to_be_solved = []
-            for i in range(len(penalty_to_be_solved)):
-                if penalty_to_be_solved[i][2] == true_max_penalty:
-                    true_penalty_to_be_solved.append(penalty_to_be_solved[i])
-            print(true_penalty_to_be_solved)
-
-            #find the smallests transportation costs 
-            min_cost = None
-            for i in range(len(provisions)):
-                for j in range(len(orders)):
-                    if min_cost == None:
-                        min_cost = self.matrix[i][j]
-                        min_i = i
-                        min_j = j
-                    elif self.matrix[i][j] < min_cost:
-                        min_cost = self.matrix[i][j]
-                        min_i = i
-                        min_j = j
-            #find all the cells with the same cost and are in the true penalties
-
-            min_costs = []
-            for elem in true_penalty_to_be_solved:
-                if elem[0]:
-                   for i in range(len(self.matrix.copy())):
-                        if self.matrix[elem[1]][i] == min_cost:
-                            #find the amount to be transported
-                            if provisions[elem[1]] < orders[i]:
-                                min_costs.append([elem[1], i, provisions[elem[1]]])
-                            else:
-                                min_costs.append([elem[1], i, orders[i]])
-                            
-                else:
-                    for i in range(len(self.matrix.copy())):
-                        if self.matrix[i][elem[1]] == min_cost:
-                            #find the amount to be transported
-                            if provisions[i] < orders[elem[1]]:
-                                min_costs.append([i, elem[1], provisions[i]])
-                            else:
-                                min_costs.append([i, elem[1], orders[elem[1]]])
-            #find the biggest amount to be transported #!important until here the code is working 
-            max_transport = 0
-            max_transport_x = 0
-            max_transport_y = 0
-            for elem in min_costs:
-                if elem[2] > max_transport:
-                    max_transport = elem[2]
-                    max_transport_x = elem[0]
-                    max_transport_y = elem[1]
-            #update the solution by the biggest amount to be transported
-            solution[max_transport_x][max_transport_y] = max_transport
-            #update the orders and provisions
-            orders[max_transport_y] -= max_transport
-            provisions[max_transport_x] -= max_transport
-            #update the penalties
-            orders_penalty[max_transport_y] = None
-            provisions_penalty[max_transport_x] = None
-
-
-            print(min_costs)
+            selected_index = select_max_penalty(costs)
+            if selected_index is None:
+                break
         
-        print(self.matrix)
-        print(provisions_penalty)
-        print(orders_penalty)
+            if selected_index[0] == 'row':
+                selected_row = selected_index[1]
+                min_cost = min(costs[selected_row])
+                min_cost_index = costs[selected_row].index(min_cost)
+                max_supply = min(provisions[selected_row], orders[min_cost_index])
+                allocated_costs[selected_row][min_cost_index] += max_supply  # Allocate to the separate table
+                provisions[selected_row] -= max_supply
+                orders[min_cost_index] -= max_supply
+                costs[selected_row][min_cost_index] = float('inf')  # Mark the cell as used by setting it to infinity
+            else:
+                selected_col = selected_index[1]
+                col_values = [row[selected_col] for row in costs]
+                min_cost = min(col_values)
+                min_cost_index = col_values.index(min_cost)
+                max_demand = min(provisions[min_cost_index], orders[selected_col])
+                allocated_costs[min_cost_index][selected_col] += max_demand  # Allocate to the separate table
+                provisions[min_cost_index] -= max_demand
+                orders[selected_col] -= max_demand
+                costs[min_cost_index][selected_col] = float('inf')  # Mark the cell as used by setting it to infinity
 
-        return solution
+        return allocated_costs
         
 
     def compute_cost(self, solution):
@@ -234,3 +200,5 @@ def menu():
 
 
 menu()
+
+
