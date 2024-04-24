@@ -3,6 +3,55 @@ import sys
 import time
 import random
 
+
+
+def get_adgency_matrix(matrix):
+    adjancy_matrix = [ [0 for i in range(len(matrix)+ len(matrix[0]))] for j in range(len(matrix)+ len(matrix[0]))]
+
+    for i in range(len(matrix)):
+        for j in range(len(matrix[0])):
+            if matrix[i][j] == 1:
+                adjancy_matrix[i][len(matrix)+j] = 1
+
+    matrix = list(zip(*matrix))
+    for i in range(len(matrix)):
+        for j in range(len(matrix[0])):
+            if matrix[i][j] == 1:
+                adjancy_matrix[len(matrix)+j][i] = 1
+    return adjancy_matrix
+
+
+
+def find_cycle(adj_matrix, start_edge):
+    n = len(adj_matrix)
+    visited = [False] * n
+    path = []
+
+    def dfs(vertex, parent):
+        visited[vertex] = True
+        path.append(vertex)
+
+        for neighbor in range(n):
+            if adj_matrix[vertex][neighbor]:
+                if not visited[neighbor]:
+                    if dfs(neighbor, vertex):
+                        return True
+                elif neighbor == start_edge and len(path) > 2:
+                    path.append(neighbor)
+                    return True
+
+        path.pop()
+        return False
+
+    if dfs(start_edge, -1):
+        cycle = []
+        for i in range(len(path) - 1):
+            cycle.append((path[i], path[i + 1]))
+        cycle.append((path[-1], path[0]))  # Add edge back to starting vertex
+        return cycle, path
+    else:
+        return None, None
+
 def is_E_V(matrix):
     Number_vertices = 0
     for i in range(len(matrix)):
@@ -105,6 +154,41 @@ def select_max_penalty(costs):
     return selected_index
 
 
+def solve_2nd_order_system(liste , answers = {}):
+    """
+    Solve a 2nd order system of equations.
+    take as parameter a list of 2nd order equations in the form of a str: "x1-x2=solution"
+    the solution of all the equations are known and the system is solvable and the operator is always a minus
+    exemple: ["x1-x2=10", "x3-x4=15"]
+    return a dict with the solution of the system : {"x1": value, "x2": value}
+    :param list: list of equations
+    :return: dict
+    """
+    #loop over the list of equations
+    for eq in liste:
+        #split the equation into the two variables
+        eq = eq.split("=")
+        solution = eq[1]
+        #split the variables and the sign
+        x1 , x2 = eq[0].split("-")
+        #check if x1 is a key in the dict
+        if x1 in answers:
+            if not x2 in answers:
+                answers[x2] = answers[x1] - int(solution)
+                for elem in liste :
+                    #si x2 est dans elem (str) remplace x2 par la valeur de x2
+                    elem = elem.replace(x2, str(answers[x2]))
+                    
+                answer = solve_2nd_order_system(liste , answers)
+        else:
+            if x2 in answers:
+                answers[x1] = answers[x2] + int(solution)
+                for elem in liste :
+                    #si x1 est dans elem (str) remplace x1 par la valeur de x1
+                    elem = elem.replace(x1, str(answers[x1]))
+                answer = solve_2nd_order_system(liste , answers)
+    return answers
+
 class transportation_problem():
 
     #constructor of the class with a str file as parameter
@@ -163,7 +247,7 @@ class transportation_problem():
                 provisions[i] -= solution[i][j]
                 orders[j] -= solution[i][j]
                 
-        delayed_print("cc"+str(solution))
+        
         
         return solution
 
@@ -228,42 +312,105 @@ class transportation_problem():
         """
         solution = self.north_west_corner()
 
-        #first we need to check if the solution is degenerate
-        if is_degenerate(solution):
-            throw("The solution is degenerate")
-        #create a matrix of size of solution with [] where in solution there is a value > 0 and none otherwise
-        print(solution)
-        potential_cost = [[None if solution[i][j] == 0 else [] for j in range(len(self.orders))] for i in range(len(self.provisions))]
-        print(potential_cost)
 
-        #calculate the potentials
-        potentials_row = [None for i in range(len(self.provisions))]
-        potentials_col = [None for i in range(len(self.orders))]
-        potentials_row[0] = 0
-        #calculate the potentials
-        for i in range(len(potentials_row)):
-            for j in range(len(potentials_col)):
-                if solution[i][j] != 0:
-                    if potentials_row[i] != None:
-                        potentials_col[j] =  potentials_row[i] -self.matrix[i][j]
-                    else:
-                        potentials_row[i] =  potentials_col[j] -self.matrix[i][j]
-        
-        print(potentials_row)
-        print(potentials_col)
+        while True:
+            #first we need to check if the solution is degenerate
+            if is_degenerate(solution):
+                raise Exception("The solution is degenerate")
+            #create a matrix of size of solution with [] where in solution there is a value > 0 and none otherwise 
+            #!to delete
+            print(solution)
+            potential_cost = [[None if solution[i][j] == 0 else [] for j in range(len(self.orders))] for i in range(len(self.provisions))]
+            print(potential_cost)
 
-        #for each cell in the solution, calculate the potential cost
-        for i in range(len(solution)):
-            for j in range(len(solution[i])):
+            #calculate the potentials 
+            #! to rework
+            potentials_row = [None for i in range(len(self.provisions))]
+            potentials_col = [None for i in range(len(self.orders))]
+            potentials_row[0] = 0
+            #calculate the potentials
+            string = ""
+            system = []
+            for i in range(len(solution)):
+                for j in range(len(solution[i])):
+                    if solution[i][j] != 0:
+                        string = f"y{i}-x{j}={self.matrix[i][j]}"
+                        system.append(string)
+
+            soluce = solve_2nd_order_system(system, {"y0": 0})
+
+            for elem in soluce:
+                if "x" in elem:
+                    potentials_col[int(elem[1])] = soluce[elem]
+                else:
+                    potentials_row[int(elem[1])] = soluce[elem]
+
+            print(potentials_row)
+            print(potentials_col)
+
+            #copute the marginal costs
+            potential_costs = [[0 for i in range(len(self.orders))] for j in range(len(self.provisions))]
+            for i in range(len(self.provisions)):
+                for j in range(len(self.orders)):
+                    potential_costs[i][j] = potentials_row[i] - potentials_col[j]
+
+            marginal_costs = [[0 for i in range(len(self.orders))] for j in range(len(self.provisions))]
+            for i in range(len(self.provisions)):
+                for j in range(len(self.orders)):
+                    marginal_costs[i][j] = self.matrix[i][j] - potential_costs[i][j]
+
+            #we find the edge with the lowest marginal cost
+            min_cost = float('inf')
+            min_indice = []
+            for i in range(len(self.provisions)):
+                for j in range(len(self.orders)):
+                    if marginal_costs[i][j] < min_cost:
+                        min_cost = marginal_costs[i][j]
+                        min_indice = [i, j]
+
+            if min_cost >= 0:
+                break
+
+            #we hade the edge to the solution
+            solution[min_indice[0]][min_indice[1]] = 1
+
+            graph= [[0 for i in range(len(self.orders))] for j in range(len(self.provisions))]
+            for i in range(len(self.provisions)):
+                for j in range(len(self.orders)):
+                    if solution[i][j] != 0:
+                        graph[i][j] = 1
+
+            print(graph)
+
+            start_edge = min_indice[1]
+            cycle, vertices = find_cycle(get_adgency_matrix(graph), start_edge)
+
+            if not cycle:
+                start_edge = min_indice[0]+ len(self.orders)
+                cycle, vertices = find_cycle(get_adgency_matrix(graph), start_edge)
+
+            #find (i,j) in the cycle
+            path=[]
+            for i in range(len(cycle)):
+                #find the max value of cycle[i]
+                if cycle[i][0] < cycle[i][1] :
+                    x= cycle[i][1]-len(self.orders)
+                    y= cycle[i][0]
+                else:
+                    x= cycle[i][0]-len(self.orders)
+                    y= cycle[i][1]
+                path.append((x,y))
                 
-                potential_cost[i][j] =  potentials_row[i] - potentials_col[j]
-        
-        print(potential_cost)
+
+
+                
+
+            
                 
 
         
 
-        pass
+            pass
 
     def __str__(self): #TODO : implement the __str__ method -> @Mathieu fait nous des beaux tableaux 
         """
