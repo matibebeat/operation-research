@@ -2,55 +2,11 @@
 import sys
 import time
 import random
+# Our libraries
+from maths import resolve_equation, solve_2nd_order_system
+from graph import find_cycle, get_adgency_matrix , is_cyclic
 
 
-
-def get_adgency_matrix(matrix):
-    adjancy_matrix = [ [0 for i in range(len(matrix)+ len(matrix[0]))] for j in range(len(matrix)+ len(matrix[0]))]
-
-    for i in range(len(matrix)):
-        for j in range(len(matrix[0])):
-            if matrix[i][j] == 1:
-                adjancy_matrix[i][len(matrix)+j] = 1
-
-    matrix = list(zip(*matrix))
-    print()
-    for i in range(len(matrix)):
-        for j in range(len(matrix[0])):
-            if matrix[i][j] == 1:
-                adjancy_matrix[len(matrix)+i][j] = 1
-    return adjancy_matrix
-
-
-def find_cycle(adj_matrix, start_edge):
-    n = len(adj_matrix)
-    visited = [False] * n
-    path = []
-
-    def dfs(vertex, parent):
-        visited[vertex] = True
-        path.append(vertex)
-
-        for neighbor in range(n):
-            if adj_matrix[vertex][neighbor]:
-                if not visited[neighbor]:
-                    if dfs(neighbor, vertex):
-                        return True
-                elif neighbor == start_edge and len(path) > 2:
-                    path.append(neighbor)
-                    return True
-
-        path.pop()
-        return False
-
-    if dfs(start_edge, -1):
-        cycle = []
-        for i in range(len(path) - 1):
-            cycle.append((path[i], path[i + 1]))
-        cycle.append((path[-1], path[0]))  # Add edge back to starting vertex
-        return cycle, path
-    else:
-        return None, None
 
 def is_E_V(matrix):
     Number_vertices = 0
@@ -63,37 +19,7 @@ def is_E_V(matrix):
         return False
     return True
 
-def is_acyclic(proposal):
-    num_vertices = len(proposal)
-    visited = set()
-
-    def dfs(node, visited, proposal):
-        if node in visited:
-            return False
-        visited.add(node)
-        for i in range(num_vertices):
-            if proposal[node][i] == 1:
-                if not dfs(i, visited, proposal):
-                    return False
-        visited.remove(node)
-        return True
-    
-    for i in range(num_vertices):
-        if not dfs(i, visited, proposal):
-            return False
-    return True
-
-def resolve_equation(a,b,c):
-    if a == none and b == none:
-        return a,b,c
-    if a == none:
-        return c+b, b, c
-    if b == none:
-        return a, a-c, c
-    
-
-
-def delayed_print(text, delay=0.05):
+def delayed_print(text):
     text = str(text)
     for char in text:
         #delay rand between 0.1 and 0.01
@@ -103,9 +29,6 @@ def delayed_print(text, delay=0.05):
         
 def is_degenerate(matrix):
     return (is_E_V(matrix) and is_acyclic(matrix))
-
-
-
 
 def calculate_penalty(costs):
     penalties_row = []
@@ -153,44 +76,7 @@ def select_max_penalty(costs):
     
     return selected_index
 
-
-def solve_2nd_order_system(liste , answers = {}):
-    """
-    Solve a 2nd order system of equations.
-    take as parameter a list of 2nd order equations in the form of a str: "x1-x2=solution"
-    the solution of all the equations are known and the system is solvable and the operator is always a minus
-    exemple: ["x1-x2=10", "x3-x4=15"]
-    return a dict with the solution of the system : {"x1": value, "x2": value}
-    :param list: list of equations
-    :return: dict
-    """
-    #loop over the list of equations
-    for eq in liste:
-        #split the equation into the two variables
-        eq = eq.split("=")
-        solution = eq[1]
-        #split the variables and the sign
-        x1 , x2 = eq[0].split("-")
-        #check if x1 is a key in the dict
-        if x1 in answers:
-            if not x2 in answers:
-                answers[x2] = answers[x1] - int(solution)
-                for elem in liste :
-                    #si x2 est dans elem (str) remplace x2 par la valeur de x2
-                    elem = elem.replace(x2, str(answers[x2]))
-                    
-                answer = solve_2nd_order_system(liste , answers)
-        else:
-            if x2 in answers:
-                answers[x1] = answers[x2] + int(solution)
-                for elem in liste :
-                    #si x1 est dans elem (str) remplace x1 par la valeur de x1
-                    elem = elem.replace(x1, str(answers[x1]))
-                answer = solve_2nd_order_system(liste , answers)
-    return answers
-
 class transportation_problem():
-
     #constructor of the class with a str file as parameter
     def __init__(self, file=None, x=5, y=5):
         if file == None:
@@ -219,20 +105,12 @@ class transportation_problem():
             for elem in content[:-1]:
                 self.matrix.append(list(map(int, elem.split()[:-1])))
         self.costs = None
-        #self.north_west_solution = self.north_west_corner()
-        #delayed_print(self.compute_cost(self.north_west_solution))
-        
-        #delayed_print(self.ballas_hammer_charles())
         
     def init_random(self, x, y):
-        self.orders = [random.randint(1, 100) for i in range(x)]
-        self.provisions = [random.randint(1, 100) for i in range(y)]
-        self.matrix = [[random.randint(1, 100) for i in range(x)] for j in range(y)]
+        self.orders = [random.randint(1, 100) for _ in range(x)]
+        self.provisions = [random.randint(1, 100) for _ in range(y)]
+        self.matrix = [[random.randint(1, 100) for _ in range(x)] for j in range(y)]
         self.costs = None
-        #self.north_west_solution = self.north_west_corner()
-        #delayed_print(self.compute_cost(self.north_west_solution))
-        
-        #delayed_print(self.ballas_hammer_charles())
 
     def north_west_corner(self):
         #a 2D list that contains the solution of the problem
@@ -316,14 +194,74 @@ class transportation_problem():
 
 
         while True:
+            #check if the number of edges is equal to the number of vertices -1
+            vertices = 0
+            edges = 0
+            for i in range(len(solution)):
+                for j in range(len(solution[i])):
+                    if solution[i][j] != 0:
+                        edges += 1
+            
+            for i in range(len(solution)):
+                if sum(solution[i]) != 0:
+                    vertices += 1
+            for i in range(len(solution[0])):
+                if sum([solution[j][i] for j in range(len(solution))]) != 0:
+                    vertices += 1
+
+            solution_graph = [[0 for i in range(len(self.orders))] for j in range(len(self.provisions))]
+            for i in range(len(solution)):
+                for j in range(len(solution[i])):
+                    if solution[i][j] != 0:
+                        solution_graph[i][j] = 1
+
+            
+            debug= 0
+            while edges != vertices - 1:
+                #!we need to add an edge to the solution
+                #we will find the edge with the lowest transport cost, check if we add it we will have a cycle
+                min_cost = float('inf')
+                min_indice = []
+                for i in range(len(self.matrix)):
+                    for j in range(len(self.matrix[i])):
+                        if self.matrix[i][j] < min_cost and solution[i][j] == 0:
+                            #we make temp_solution wich is the solution with the edge added with a value of 1 for each edge
+                            temp_solution = [[0 for i in range(len(solution[0]))] for j in range(len(solution))]
+                            for k in range(len(temp_solution)):
+                                for l in range(len(temp_solution[k])):
+                                    if temp_solution[k][l] != 0:
+                                        temp_solution[k][l] = 1
+                            temp_solution[i][j] = 1
+                            if not is_cyclic(temp_solution):
+                                min_cost = self.matrix[i][j]
+                                min_indice = [i, j]
+
+                debug = 0   
+                solution_graph[min_indice[0]][min_indice[1]] = 1
+
+                vertices = 0
+                edges = 0
+                for i in range(len(solution_graph)):
+                    for j in range(len(solution_graph[i])):
+                        if solution_graph[i][j] != 0:
+                            edges += 1
+            
+                for i in range(len(solution_graph)):
+                    if sum(solution_graph[i]) != 0:
+                        vertices += 1
+                for i in range(len(solution_graph[0])):
+                    if sum([solution_graph[j][i] for j in range(len(solution_graph))]) != 0:
+                        vertices += 1
+
+                
             #first we need to check if the solution is degenerate
             #if is_degenerate(solution):
                 #raise Exception("The solution is degenerate")
             string = ""
             system = []
-            for i in range(len(solution)):
-                for j in range(len(solution[i])):
-                    if solution[i][j] != 0:
+            for i in range(len(solution_graph)):
+                for j in range(len(solution_graph[i])):
+                    if solution_graph[i][j] != 0:
                         string = f"y{i}-x{j}={self.matrix[i][j]}"
                         system.append(string)
 
@@ -331,6 +269,7 @@ class transportation_problem():
             potentials_row = [None for i in range(len(self.provisions))]
             potentials_col = [None for i in range(len(self.orders))]
             potentials_row[0] = 0
+
             for elem in soluce:
                 if "x" in elem:
                     potentials_col[int(elem[1])] = soluce[elem]
@@ -365,33 +304,30 @@ class transportation_problem():
 
             #we hade the edge to the solution
             solution[min_indice[0]][min_indice[1]] = 1
+            solution_graph[min_indice[0]][min_indice[1]] = 1
 
-            graph= [[0 for i in range(len(self.orders))] for j in range(len(self.provisions))]
-            for i in range(len(self.provisions)):
-                for j in range(len(self.orders)):
-                    if solution[i][j] != 0:
-                        graph[i][j] = 1
-
-            print(graph)
 
             start_edge = min_indice[1] 
-            cycle, vertices = find_cycle(get_adgency_matrix(graph), start_edge)
+            cycle, vertices = find_cycle(get_adgency_matrix(solution_graph), start_edge)
 
             if not cycle:
                 start_edge = min_indice[0]+ len(self.orders)
-                cycle, vertices = find_cycle(get_adgency_matrix(graph), start_edge)
+                cycle, vertices = find_cycle(get_adgency_matrix(solution_graph), start_edge)
 
             #find (i,j) in the cycle
             path=[]
             for i in range(len(cycle)):
                 #find the max value of cycle[i]
                 if cycle[i][0] < cycle[i][1] :
-                    y= cycle[i][1]-len(self.orders)
+                    y= cycle[i][1]-len(self.provisions)
                     x= cycle[i][0]
                 else:
-                    x= cycle[i][0]-len(self.orders)
+                    x= cycle[i][0]-len(self.provisions)
                     y= cycle[i][1]
                 path.append((y,x))
+            
+            #if we have a negative value in the cycle we need to add 
+
 
 
 
@@ -459,9 +395,9 @@ class transportation_problem():
         return f"Orders : {self.orders}\nProvisions : {self.provisions}\nMatrix : {self.matrix}"
 
 
-test = transportation_problem('files/problem_5.txt')
-print(test.north_west_corner())
-print(test.stepping_stone())
+#test = transportation_problem('files/problem_9.txt')
+#print(test.north_west_corner())
+#print(test.stepping_stone())
 
 """
 test = transportation_problem('files/tp_1.txt')
@@ -506,9 +442,23 @@ def menu():
 menu()
 
 
-
-
-
+"""
+for i in range(3,13):
+    print("done" + str(i))
+    with open(f'files/problem_{i}.txt', 'r') as f:
+        lines = f.readlines()
+        for line in lines:
+            print(line)
+    test = transportation_problem(f'files/problem_{i}.txt')
+    matrix = test.matrix
+    orders = test.orders
+    provisions = test.provisions
+    North_west = test.stepping_stone()
+    pass"""
+    
+test = transportation_problem('files/problem_1.txt')
+print(test.north_west_corner())
+print(test.stepping_stone())
 
 
     
@@ -573,3 +523,5 @@ for i in range(1,13):
             line = line.split()
             f.write(" ".join(line[:-1]) + "\n")
     """
+
+
