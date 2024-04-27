@@ -14,12 +14,12 @@ def get_adgency_matrix(matrix):
                 adjancy_matrix[i][len(matrix)+j] = 1
 
     matrix = list(zip(*matrix))
+    print()
     for i in range(len(matrix)):
         for j in range(len(matrix[0])):
             if matrix[i][j] == 1:
-                adjancy_matrix[len(matrix)+j][i] = 1
+                adjancy_matrix[len(matrix)+i][j] = 1
     return adjancy_matrix
-
 
 
 def find_cycle(adj_matrix, start_edge):
@@ -246,6 +246,8 @@ class transportation_problem():
                 solution[i][j] = min(provisions[i], orders[j])
                 provisions[i] -= solution[i][j]
                 orders[j] -= solution[i][j]
+        
+       
                 
         
         
@@ -315,20 +317,8 @@ class transportation_problem():
 
         while True:
             #first we need to check if the solution is degenerate
-            if is_degenerate(solution):
-                raise Exception("The solution is degenerate")
-            #create a matrix of size of solution with [] where in solution there is a value > 0 and none otherwise 
-            #!to delete
-            print(solution)
-            potential_cost = [[None if solution[i][j] == 0 else [] for j in range(len(self.orders))] for i in range(len(self.provisions))]
-            print(potential_cost)
-
-            #calculate the potentials 
-            #! to rework
-            potentials_row = [None for i in range(len(self.provisions))]
-            potentials_col = [None for i in range(len(self.orders))]
-            potentials_row[0] = 0
-            #calculate the potentials
+            #if is_degenerate(solution):
+                #raise Exception("The solution is degenerate")
             string = ""
             system = []
             for i in range(len(solution)):
@@ -338,7 +328,9 @@ class transportation_problem():
                         system.append(string)
 
             soluce = solve_2nd_order_system(system, {"y0": 0})
-
+            potentials_row = [None for i in range(len(self.provisions))]
+            potentials_col = [None for i in range(len(self.orders))]
+            potentials_row[0] = 0
             for elem in soluce:
                 if "x" in elem:
                     potentials_col[int(elem[1])] = soluce[elem]
@@ -382,7 +374,7 @@ class transportation_problem():
 
             print(graph)
 
-            start_edge = min_indice[1]
+            start_edge = min_indice[1] 
             cycle, vertices = find_cycle(get_adgency_matrix(graph), start_edge)
 
             if not cycle:
@@ -394,12 +386,43 @@ class transportation_problem():
             for i in range(len(cycle)):
                 #find the max value of cycle[i]
                 if cycle[i][0] < cycle[i][1] :
-                    x= cycle[i][1]-len(self.orders)
-                    y= cycle[i][0]
+                    y= cycle[i][1]-len(self.orders)
+                    x= cycle[i][0]
                 else:
                     x= cycle[i][0]-len(self.orders)
                     y= cycle[i][1]
-                path.append((x,y))
+                path.append((y,x))
+
+
+
+            orders = self.orders.copy()
+            provisions = self.provisions.copy()
+
+            
+
+            #!on en est là
+            #! jusqu'ici tout va bien
+
+
+            max_value_to_add = float('inf')
+            for i in range(len(path[1:])):
+                if i % 2 == 0:
+                    #we need to find the min value to add by taking care of the orders and provisions and all the other values in the path
+                    max_value_to_add = min(max_value_to_add, min(provisions[path[i][0]], orders[path[i][1]]))
+
+
+
+
+                else:
+                    max_value_to_add = min(max_value_to_add, solution[path[i][1]][path[i][0]])
+                
+            for i in range(len(path[1:])):
+                if i % 2 == 0:
+                    solution[path[i][0]][path[i][1]] += max_value_to_add
+                else:
+                    solution[path[i][1]][path[i][0]] -= max_value_to_add
+            
+            solution[min_indice[0]][min_indice[1]] -=1
                 
 
 
@@ -411,6 +434,7 @@ class transportation_problem():
         
 
             pass
+        return solution
 
     def __str__(self): #TODO : implement the __str__ method -> @Mathieu fait nous des beaux tableaux 
         """
@@ -429,16 +453,15 @@ class transportation_problem():
 
 
 
-    
-
         
 
 
         return f"Orders : {self.orders}\nProvisions : {self.provisions}\nMatrix : {self.matrix}"
 
 
-test = transportation_problem('files/tp_1.txt')
-test.stepping_stone()
+test = transportation_problem('files/problem_5.txt')
+print(test.north_west_corner())
+print(test.stepping_stone())
 
 """
 test = transportation_problem('files/tp_1.txt')
