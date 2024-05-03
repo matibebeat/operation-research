@@ -10,6 +10,17 @@ from math import isnan
 #! renomme les fonctions / variables bg 
 
 
+def find_minimum_in_matrix(matrix):
+    minimum = float('inf')
+    minimum_index = []
+    for i in range(len(matrix)):
+        for j in range(len(matrix[i])):
+            if matrix[i][j] < minimum:
+                minimum = matrix[i][j]
+                minimum_index = [i, j]
+    return minimum, minimum_index
+
+
 
 def is_E_V(matrix):
     Number_vertices = 0
@@ -246,7 +257,7 @@ class transportation_problem():
                 cost += solution[i][j] * self.matrix[i][j]
         return cost
 
-    def stepping_stone(self):
+    """ def stepping_stone(self):
         #TODO : implement the stepping stone method
         """
         Solving algorithm : the stepping-stone method with potential.
@@ -571,69 +582,73 @@ class transportation_problem():
         
 
             pass
-        return solution
+        return solution """
+
+    def  compute_potentials(self, solution):
+        string = ""
+        system = []
+        for i in range(len(solution)):
+            for j in range(len(solution[i])):
+                if solution[i][j] != 0:
+                    string = f"y{i}-x{j}={self.matrix[i][j]}"
+                    system.append(string)
+        soluce = solve_2nd_order_system(system, {"y0": 0})
+        potentials_row = [None for i in range(len(self.provisions))]
+        potentials_col = [None for i in range(len(self.orders))]
+        potentials_row[0] = 0
+
+        for elem in soluce:
+            if "x" in elem:
+                potentials_col[int(elem[1])] = soluce[elem]
+            else:
+                potentials_row[int(elem[1])] = soluce[elem]
+        return potentials_row, potentials_col
+    
+    def compute_marginals_costs(self, potentials_row, potentials_col):
+        potential_costs = [[0 for i in range(len(self.orders))] for j in range(len(self.provisions))]
+        for i in range(len(self.provisions)):
+            for j in range(len(self.orders)):
+                potential_costs[i][j] = potentials_row[i] - potentials_col[j]
+
+        marginal_costs = [[0 for i in range(len(self.orders))] for j in range(len(self.provisions))]
+        for i in range(len(self.provisions)):
+            for j in range(len(self.orders)):
+                marginal_costs[i][j] = self.matrix[i][j] - potential_costs[i][j]
+        return marginal_costs
 
     def stepping_stone_working(self):
         solution = self.north_west_corner()
         while True:
+
             solution_graph = [[0 for i in range(len(self.orders))] for j in range(len(self.provisions))]
             for i in range(len(solution)):
                 for j in range(len(solution[i])):
                     if solution[i][j] != 0:
                         solution_graph[i][j] = 1
 
-
             #we need to calculate the potentials
-            string = ""
-            system = []
-            for i in range(len(solution_graph)):
-                for j in range(len(solution_graph[i])):
-                    if solution_graph[i][j] != 0:
-                        string = f"y{i}-x{j}={self.matrix[i][j]}"
-                        system.append(string) 
+
+            potentials_row,potentials_col = self.compute_potentials(solution_graph) 
             
-            soluce = solve_2nd_order_system(system, {"y0": 0})
-            potentials_row = [None for i in range(len(self.provisions))]
-            potentials_col = [None for i in range(len(self.orders))]
-            potentials_row[0] = 0
-
-            for elem in soluce:
-                if "x" in elem:
-                    potentials_col[int(elem[1])] = soluce[elem]
-                else:
-                    potentials_row[int(elem[1])] = soluce[elem]
-
-
-
             #copute the marginal costs
-            potential_costs = [[0 for i in range(len(self.orders))] for j in range(len(self.provisions))]
-            for i in range(len(self.provisions)):
-                for j in range(len(self.orders)):
-                    potential_costs[i][j] = potentials_row[i] - potentials_col[j]
 
-            marginal_costs = [[0 for i in range(len(self.orders))] for j in range(len(self.provisions))]
-            for i in range(len(self.provisions)):
-                for j in range(len(self.orders)):
-                    marginal_costs[i][j] = self.matrix[i][j] - potential_costs[i][j]
+            marginal_costs = self.compute_marginals_costs(potentials_row, potentials_col)            
 
             #we find the edge with the lowest marginal cost
-            min_cost = float('inf')
-            min_indice = []
-            for i in range(len(self.provisions)):
-                for j in range(len(self.orders)):
-                    if marginal_costs[i][j] < min_cost:
-                        min_cost = marginal_costs[i][j]
-                        min_indice = [i, j]
+            
+            min_cost, min_indice = find_minimum_in_matrix(marginal_costs)
 
             if min_cost >= 0:
                 break
+
             solution_graph[min_indice[0]][min_indice[1]] = 1
 
             start_edge = min_indice[1] 
             cycle, vertices = find_cycle(get_adgency_matrix(solution_graph), start_edge)
-
-
-
+            
+            if not cycle:
+                start_edge = min_indice[0]+ len(self.orders)
+                cycle, vertices = find_cycle(get_adgency_matrix(solution_graph), start_edge)
             path=[]
             for i in range(len(cycle)):
                 #find the max value of cycle[i]
@@ -676,11 +691,12 @@ class transportation_problem():
                         max_value_to_add = max(provisions[path[i][0]], orders[path[i][1]])
 
             for i in range(len(path)):
-                if i % 2 == 1:
+                if i % 2 == 0:
                     solution[path[i][0]][path[i][1]] += max_value_to_add
                 else:
                     solution[path[i][0]][path[i][1]] -= max_value_to_add
 
+            print('g')
 
 
 
@@ -706,22 +722,7 @@ class transportation_problem():
 
         return f"Orders : {self.orders}\nProvisions : {self.provisions}\nMatrix : {self.matrix}"
 
-#test = transportation_problem('files/problem_9.txt')
-#print(test.north_west_corner())
-#print(test.stepping_stone())
 
-"""
-test = transportation_problem('files/tp_1.txt')
-
-global problems
-problems =[]
-
-problems.append(test)
-
-the = transportation_problem(x = 5, y= 5)
-print(the)
-
-"""
 def menu():
     """
     Start
@@ -751,95 +752,7 @@ def menu():
 
 
 menu()
-"""
-test = transportation_problem('files/problem_1.txt')
-print(test.north_west_corner())
-print(test.stepping_stone())
-"""
-# Test the function
-proposal_with_cycle = [
-    [0, 1, 1, 0],
-    [1, 0, 0, 0],
-    [1, 0, 0, 1],
-    [0, 0, 1, 0]
-]
-
-prop2 =[
-    [1,1,0],
-    [1,1,0],
-    [0,1,1]
-]
-
-"""
-matrix =[ [65,10,4,0], [0,30,10,0], [0,0,50,20] ]
-
-print(is_degenerate(matrix))
-
-print(is_acyclic(proposal_with_cycle))
-print(is_acyclic(prop2))
-
-
-for i in range(1,13):
-    print("done" + str(i))
-    with open(f'files/problem_{i}.txt', 'r') as f:
-        lines = f.readlines()
-        print (lines)
-    #open each file and write it in the file
-    with open(f'files/problem_{i}.txt', 'w+') as f:
-        f.write(lines[0])
-        #loop over the lines exept the first one and write them in the file
-        for line in lines[1:]:
-            line = line.split()
-            f.write(" ".join(line[1:]) + "\n")
-        
-        """
-    
-"""
-    print(lines)
-        f.write(lines[0])
-        #loop over the lines exept the first one and write them in the file
-        for line in lines[1:]:
-            line = line.split()
-            f.write(" ".join(line[:-1]) + "\n")
-    """
-"""
-for i in range(11,13):
-    print("done" + str(i))
-    try:
-
-        test = transportation_problem(f'files/problem_{i}.txt').stepping_stone()
-    
-    except Exception as e:
-        print(e)
-        continue
-    """
 
 
 
-
-# test = transportation_problem('files/problem_0.txt').ballas_hammer()
-# print(test)
-
-# for i in range(1,13):
-#     print("done" + str(i))
-#     test = transportation_problem(f'files/problem_{i}.txt').ballas_hammer()
-#     test = transportation_problem(f'files/problem_{i}.txt').north_west_corner()
-
-
-# print(is_cyclic(proposal_with_cycle))
-
-
-# for i in range(1,13):
-#     if i ==6 or i == 7 or i==8:
-#         continue
-#     print("done" + str(i))
-#     test = transportation_problem(f'files/problem_{i}.txt').stepping_stone()
-
-# transportation_problem('files/problem_3.txt').stepping_stone_working()
-matrix =    [
-    [65,10,0,1],
-    [0,30,10,0],
-    [0,0,40,30]
-]
-
-print(is_cyclic(matrix))
+test = transportation_problem('files/essay.txt').stepping_stone_working()
