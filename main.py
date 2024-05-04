@@ -178,8 +178,25 @@ class transportation_problem():
                 solution[i][j] = min(provisions[i], orders[j])
                 provisions[i] -= solution[i][j]
                 orders[j] -= solution[i][j]
-        
-       
+
+        table = PrettyTable()
+
+        num_provisions = len(solution)
+        num_orders = len(solution[0])
+
+        # Ajout de la colonne pour les noms des provisions
+        table.add_column("", ["S " + str(i + 1) for i in range(num_provisions)])
+
+        # Ajout des colonnes pour chaque commande
+        for i in range(num_orders):
+            table.add_column("L " + str(i + 1), [solution[j][i] for j in range(num_provisions)])
+        table.add_column("Provisions", self.provisions)
+        total_orders = sum(self.orders)
+        table.add_row(["Orders"] + self.orders + [total_orders])
+        # Affichage du tableau
+        table.set_style(DOUBLE_BORDER)
+        print(table)   
+               
                 
         
         
@@ -796,4 +813,5 @@ menu()
 
 
 # test = transportation_problem('files/essay.txt').stepping_stone_working()
-test = transportation_problem('files/essay.txt').ballas_hammer()
+# test = transportation_problem('files/essay.txt').ballas_hammer()
+test = transportation_problem('files/essay.txt').north_west_corner()
