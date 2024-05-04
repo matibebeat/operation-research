@@ -249,6 +249,24 @@ class transportation_problem():
             print(row)
         print("\n--- END Processing ---\n")"""
 
+        table = PrettyTable()
+
+        num_provisions = len(allocated_costs)
+        num_orders = len(allocated_costs[0])
+
+        # Ajout de la colonne pour les noms des provisions
+        table.add_column("", ["S " + str(i + 1) for i in range(num_provisions)])
+
+        # Ajout des colonnes pour chaque commande
+        for i in range(num_orders):
+            table.add_column("L " + str(i + 1), [allocated_costs[j][i] for j in range(num_provisions)])
+        table.add_column("Provisions", self.provisions)
+        total_orders = sum(self.orders)
+        table.add_row(["Orders"] + self.orders + [total_orders])
+        # Affichage du tableau
+        table.set_style(DOUBLE_BORDER)
+        print(table)
+
         return allocated_costs
         
     def compute_cost(self, solution):
@@ -777,4 +795,5 @@ menu()
 
 
 
-test = transportation_problem('files/essay.txt').stepping_stone_working()
+# test = transportation_problem('files/essay.txt').stepping_stone_working()
+test = transportation_problem('files/essay.txt').ballas_hammer()
