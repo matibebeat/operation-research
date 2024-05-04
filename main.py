@@ -2,6 +2,7 @@
 import sys
 import time
 import random
+from prettytable import PrettyTable,DOUBLE_BORDER
 # Our libraries
 from maths import resolve_equation, solve_2nd_order_system
 from graph import find_cycle, get_adgency_matrix , is_cyclic
@@ -258,23 +259,23 @@ class transportation_problem():
         return cost
 
     """ def stepping_stone(self):
-        #TODO : implement the stepping stone method
+        # TO DO : implement the stepping stone method
         """
-        Solving algorithm : the stepping-stone method with potential.
-            ⋆ Test whether the proposition is acyclic : we’ll use a Breadth-first algorithm. During the algorithm run, as the vertices are discovered, we check that we’re returning to a previously
-               visited vertex and that this vertex isn’t the parent of the current vertex ; if it is, then a cycle exists. The cycle is then displayed.
-            ⋆ Transportation maximization if a cycle has been detected. The conditions for each box are
-               displayed. Then we display the deleted edge (possibly several) at the end of maximization.
-            ⋆ Test whether the proposition is connected : we’ll use a Breadth-first algorithm. If it is not
-               connected : display of all connected sub-graphs.
-            ⋆ Modification of the graph if it is unconnected, until a non-degenerate proposition is obtained.
-            ⋆ Calculation and display of potentials per vertex.
-            ⋆ Display of both potential costs table and marginal costs table. Possible detection of the best
-               improving edge.
-            ⋆ Add this improving edge to the transport proposal, if it has been detected.
+        # Solving algorithm : the stepping-stone method with potential.
+        #     ⋆ Test whether the proposition is acyclic : we’ll use a Breadth-first algorithm. During the algorithm run, as the vertices are discovered, we check that we’re returning to a previously
+        #        visited vertex and that this vertex isn’t the parent of the current vertex ; if it is, then a cycle exists. The cycle is then displayed.
+        #     ⋆ Transportation maximization if a cycle has been detected. The conditions for each box are
+        #        displayed. Then we display the deleted edge (possibly several) at the end of maximization.
+        #     ⋆ Test whether the proposition is connected : we’ll use a Breadth-first algorithm. If it is not
+        #        connected : display of all connected sub-graphs.
+        #     ⋆ Modification of the graph if it is unconnected, until a non-degenerate proposition is obtained.
+        #     ⋆ Calculation and display of potentials per vertex.
+        #     ⋆ Display of both potential costs table and marginal costs table. Possible detection of the best
+        #        improving edge.
+        #     ⋆ Add this improving edge to the transport proposal, if it has been detected.
 
-        """
-        solution = self.north_west_corner()
+    
+    """    solution = self.north_west_corner()
         while True:
         #     if is_cyclic(solution):
         #         for i in range(len(solution)):
@@ -502,89 +503,91 @@ class transportation_problem():
 
             """ 
             #check if the number of edges is equal to the number of vertices -1
-            vertices = 0
-            edges = 0
-            for i in range(len(solution)):
-                for j in range(len(solution[i])):
-                    if solution[i][j] != 0:
-                        edges += 1
+    # vertices = 0
+    # edges = 0
+    # for i in range(len(solution)):
+    #     for j in range(len(solution[i])):
+    #         if solution[i][j] != 0:
+    #             edges += 1
             
-            for i in range(len(solution)):
-                if sum(solution[i]) != 0:
-                    vertices += 1
-            for i in range(len(solution[0])):
-                if sum([solution[j][i] for j in range(len(solution))]) != 0:
-                    vertices += 1
+    # for i in range(len(solution)):
+    #     if sum(solution[i]) != 0:
+    #         vertices += 1
+    # for i in range(len(solution[0])):
+    #     if sum([solution[j][i] for j in range(len(solution))]) != 0:
+    #         vertices += 1
 
-            solution_graph = [[0 for i in range(len(self.orders))] for j in range(len(self.provisions))]
-            for i in range(len(solution)):
-                for j in range(len(solution[i])):
-                    if solution[i][j] != 0:
-                        solution_graph[i][j] = 1
-            if is_cyclic(solution_graph):
-                print("The solution is cyclic")
-                #! we need to find the cycle
-                adj_matrix = get_adgency_matrix(solution_graph)
-                for i in range(len(solution_graph)):
-                    raise Exception("Cycle found")
-                    cycle, path = find_cycle(adj_matrix, i)
-                    if cycle:
-                        print("Cycle found:", cycle)
-                        print("Vertices used:", path)
-                        #! we need to maximise the cycle
-                        #! we need to find the edge to delete
-                        min_capacity = float('inf')
-                        min_edge = None
-                        for edge in cycle:
-                            if solution[edge[0]][edge[1]] < min_capacity:
-                                min_capacity = solution[edge[0]][edge[1]]
-                                min_edge = edge
-                        print("Edge to delete:", min_edge)
+    # solution_graph = [[0 for i in range(len(self.orders))] for j in range(len(self.provisions))]
+    # for i in range(len(solution)):
+    #     for j in range(len(solution[i])):
+    #         if solution[i][j] != 0:
+    #             solution_graph[i][j] = 1
+
+    """           
+        if is_cyclic(solution_graph):
+            print("The solution is cyclic")
+            #! we need to find the cycle
+            adj_matrix = get_adgency_matrix(solution_graph)
+            for i in range(len(solution_graph)):
+                raise Exception("Cycle found")
+                cycle, path = find_cycle(adj_matrix, i)
+                if cycle:
+                    print("Cycle found:", cycle)
+                    print("Vertices used:", path)
+                    #! we need to maximise the cycle
+                    #! we need to find the edge to delete
+                    min_capacity = float('inf')
+                    min_edge = None
+                    for edge in cycle:
+                        if solution[edge[0]][edge[1]] < min_capacity:
+                            min_capacity = solution[edge[0]][edge[1]]
+                            min_edge = edge
+                    print("Edge to delete:", min_edge)
 
 
 
-            while edges != vertices - 1:
+        while edges != vertices - 1:
                 #!we need to add an edge to the solution
                 #we will find the edge with the lowest transport cost, check if we add it we will have a cycle
-                min_cost = float('inf')
-                min_indice = []
-                for i in range(len(self.matrix)):
-                    for j in range(len(self.matrix[i])):
-                        if self.matrix[i][j] < min_cost and solution[i][j] == 0:
-                            #we make temp_solution wich is the solution with the edge added with a value of 1 for each edge
-                            temp_solution = [[0 for i in range(len(solution[0]))] for j in range(len(solution))]
-                            for k in range(len(temp_solution)):
-                                for l in range(len(temp_solution[k])):
-                                    if temp_solution[k][l] != 0:
-                                        temp_solution[k][l] = 1
-                            temp_solution[i][j] = 1
-                            if not is_cyclic(temp_solution):
-                                min_cost = self.matrix[i][j]
-                                min_indice = [i, j]
+            min_cost = float('inf')
+            min_indice = []
+            for i in range(len(self.matrix)):
+                for j in range(len(self.matrix[i])):
+                    if self.matrix[i][j] < min_cost and solution[i][j] == 0:
+                        #we make temp_solution wich is the solution with the edge added with a value of 1 for each edge
+                        temp_solution = [[0 for i in range(len(solution[0]))] for j in range(len(solution))]
+                        for k in range(len(temp_solution)):
+                            for l in range(len(temp_solution[k])):
+                                if temp_solution[k][l] != 0:
+                                    temp_solution[k][l] = 1
+                        temp_solution[i][j] = 1
+                        if not is_cyclic(temp_solution):
+                            min_cost = self.matrix[i][j]
+                            min_indice = [i, j]
 
-                debug = 0   
-                solution_graph[min_indice[0]][min_indice[1]] = 1
+            debug = 0   
+            solution_graph[min_indice[0]][min_indice[1]] = 1
 
-                vertices = 0
-                edges = 0
-                for i in range(len(solution_graph)):
-                    for j in range(len(solution_graph[i])):
-                        if solution_graph[i][j] != 0:
-                            edges += 1
+            vertices = 0
+            edges = 0
+            for i in range(len(solution_graph)):
+                for j in range(len(solution_graph[i])):
+                    if solution_graph[i][j] != 0:
+                        edges += 1
             
-                for i in range(len(solution_graph)):
-                    if sum(solution_graph[i]) != 0:
-                        vertices += 1
-                for i in range(len(solution_graph[0])):
-                    if sum([solution_graph[j][i] for j in range(len(solution_graph))]) != 0:
-                        vertices += 1 """
+            for i in range(len(solution_graph)):
+                if sum(solution_graph[i]) != 0:
+                    vertices += 1
+            for i in range(len(solution_graph[0])):
+                if sum([solution_graph[j][i] for j in range(len(solution_graph))]) != 0:
+                    vertices += 1
 
         
-
-            pass
-        return solution """
-
-    def  compute_potentials(self, solution):
+        # return solution
+        pass
+    """    
+    
+    def compute_potentials(self, solution):
         string = ""
         system = []
         for i in range(len(solution)):
@@ -615,8 +618,9 @@ class transportation_problem():
             for j in range(len(self.orders)):
                 marginal_costs[i][j] = self.matrix[i][j] - potential_costs[i][j]
         return marginal_costs
-
+    
     def stepping_stone_working(self):
+
         solution = self.north_west_corner()
         while True:
 
@@ -630,7 +634,7 @@ class transportation_problem():
 
             potentials_row,potentials_col = self.compute_potentials(solution_graph) 
             
-            #copute the marginal costs
+            #compute the marginal costs
 
             marginal_costs = self.compute_marginals_costs(potentials_row, potentials_col)            
 
@@ -696,23 +700,41 @@ class transportation_problem():
                 else:
                     solution[path[i][0]][path[i][1]] -= max_value_to_add
 
-            print('g')
+            # Création du tableau PrettyTable
+            table = PrettyTable()
+
+            num_provisions = len(solution)
+            num_orders = len(solution[0])
+
+            # Ajout de la colonne pour les noms des provisions
+            table.add_column("", ["S " + str(i + 1) for i in range(num_provisions)])
+
+            # Ajout des colonnes pour chaque commande
+            for i in range(num_orders):
+                table.add_column("L " + str(i + 1), [solution[j][i] for j in range(num_provisions)])
+            table.add_column("Provisions", self.provisions)
+            total_orders = sum(self.orders)
+            table.add_row(["Orders"] + self.orders + [total_orders])
+            # Affichage du tableau
+            table.set_style(DOUBLE_BORDER)
+            print(table)
 
 
 
     def __str__(self): #TODO : implement the __str__ method -> @Mathieu fait nous des beaux tableaux 
         """
-        cost cost cost cost cost prov
-        cost cost cost cost cost prov
-        cost cost cost cost cost prov
-        cost cost cost cost cost prov
-        ord ord ord ord ord
+        # cost cost cost cost cost prov
+        # cost cost cost cost cost prov
+        # cost cost cost cost cost prov
+        # cost cost cost cost cost prov
+        # ord ord ord ord ord
         """
+        print("cijij")
         string = ""
         for i in range(len(self.matrix)):
             string += " ".join(str(x) for x in self.matrix[i]) + " " + str(self.provisions[i]) + "\n"
         string += " ".join(str(x) for x in self.orders)
-        return string
+        print(string)
         
 
 
@@ -725,28 +747,28 @@ class transportation_problem():
 
 def menu():
     """
-    Start
-        While the user decides to test a transportation problem, do :
-            Choice of the problem number to be processed.
-            Read the table of constraints from a file and store it in memory
-            Create the corresponding matrice representing this table and display it
-            Ask the user to choose the algorithm to fix the initial proposal and execute it.
-            Display the elements mentioned above when running the two algorithms.
-            Run the stepping-stone method with potential, displaying at each iteration :
-                ⋆ Displays the transport proposal and the total transport cost.
-                ⋆ Test to know if the transport proposal is degenerate.
-                ⋆ Modification of the transport graph to obtain a tree, in the cyclic or non connected.
-                ⋆ Potentials calculation and display.
-                ⋆ Table display : potential costs and marginal costs.
-                    ⋆ If not optimal :
-                        Displays the edge to be added.
-                        Transport maximization on the formed cycle and a new iteration.
-                    ⋆ Else exit the loop
-                        ⋆ End if
-            Display the minimal transportation proposal and its cost.
-            Suggest to the user that he/she should change transportation problem
-        End while
-    End
+    # Start
+    #     While the user decides to test a transportation problem, do :
+    #         Choice of the problem number to be processed.
+    #         Read the table of constraints from a file and store it in memory
+    #         Create the corresponding matrice representing this table and display it
+    #         Ask the user to choose the algorithm to fix the initial proposal and execute it.
+    #         Display the elements mentioned above when running the two algorithms.
+    #         Run the stepping-stone method with potential, displaying at each iteration :
+    #             ⋆ Displays the transport proposal and the total transport cost.
+    #             ⋆ Test to know if the transport proposal is degenerate.
+    #             ⋆ Modification of the transport graph to obtain a tree, in the cyclic or non connected.
+    #             ⋆ Potentials calculation and display.
+    #             ⋆ Table display : potential costs and marginal costs.
+    #                 ⋆ If not optimal :
+    #                     Displays the edge to be added.
+    #                     Transport maximization on the formed cycle and a new iteration.
+    #                 ⋆ Else exit the loop
+    #                     ⋆ End if
+    #         Display the minimal transportation proposal and its cost.
+    #         Suggest to the user that he/she should change transportation problem
+    #     End while
+    # End
 
     """
 
