@@ -5,11 +5,15 @@ import random
 from prettytable import PrettyTable,DOUBLE_BORDER
 # Our libraries
 from maths import resolve_equation, solve_2nd_order_system
-from graph import find_cycle, get_adgency_matrix , is_cyclic
+from graph import find_cycle, get_adgency_matrix , is_cyclic, adjency
 from cycle import detect_cycle
 from math import isnan
+from steppingstone import *
+import numpy as np
+import matplotlib.pyplot as plt
 
-#! renomme les fonctions / variables bg 
+
+
 
 
 def find_minimum_in_matrix(matrix):
@@ -44,7 +48,18 @@ def delayed_print(text):
         time.sleep(delay)
         
 def is_degenerate(matrix):
-    return (is_E_V(matrix) and is_acyclic(matrix))
+    for i in matrix: print
+    #print("1 :",is_E_V(matrix))
+    #print("2 :",detect_cycle(adjency(matrix)))
+    return is_E_V(matrix) or detect_cycle((adjency(matrix)))
+
+
+def fix_cycle(self,matrix):
+    cycle, path = find_cycle(adjency(matrix),0)
+    #print("cycle",cycle)
+    #print("path",path)
+
+
 
 def calculate_penalty(costs):
     penalties_row = []
@@ -139,8 +154,27 @@ class transportation_problem():
             self.matrix = []
             for elem in content[:-1]:
                 self.matrix.append(list(map(int, elem.split()[:-1])))
+
+        self.cost_matrice = copy.deepcopy(self.matrix)
         self.costs = None
-        
+
+
+    def fix_E_V(self, matrix):
+        #for i in self.matrix: print (i)
+        matrix_cost = copy.deepcopy(self.matrix)
+        stop = 1
+        while(stop):
+            minimum, minimum_index = find_minimum_in_matrix(matrix_cost)
+            # if meme index ballas = 0 non relié
+            if matrix[minimum_index[0]][minimum_index[1]] == 0:
+                matrix[minimum_index[0]][minimum_index[1]] = 0.00000000000000001
+                if not detect_cycle(adjency(matrix)):
+                    stop = 0
+                else:    
+                    matrix[minimum_index[0]][minimum_index[1]] = 0
+            matrix_cost[minimum_index[0]][minimum_index[1]] = 999    
+        return matrix
+    
     def init_random(self, livreur, client):
         self.orders = []
         self.provisions = []
@@ -167,6 +201,8 @@ class transportation_problem():
         self.matrix = [[random.randint(1, 100) for _ in range(client)] for _ in range(livreur)]
         self.costs = None
 
+        return self
+
     def north_west_corner(self):
         #a 2D list that contains the solution of the problem
         orders = self.orders.copy()
@@ -180,7 +216,6 @@ class transportation_problem():
                 provisions[i] -= solution[i][j]
                 orders[j] -= solution[i][j]
 
-        print("North West")
         table = PrettyTable()
 
         num_provisions = len(solution)
@@ -207,7 +242,7 @@ class transportation_problem():
     def ballas_hammer(self): 
         orders = self.orders.copy()
         provisions = self.provisions.copy()
-        costs = self.matrix.copy()
+        costs = copy.deepcopy(self.matrix)
         allocated_costs = [[0] * len(row) for row in costs]
         
         while not all(all(cell == float('inf') for cell in row) for row in costs):
@@ -268,7 +303,6 @@ class transportation_problem():
             print(row)
         print("\n--- END Processing ---\n")"""
 
-        print("Ballas Hammer")
         table = PrettyTable()
 
         num_provisions = len(allocated_costs)
@@ -639,8 +673,6 @@ class transportation_problem():
         table.set_style(DOUBLE_BORDER)
         print(table)
         return solution
-
-   
     
     def compute_potentials(self, solution):
         string = ""
@@ -676,8 +708,16 @@ class transportation_problem():
     
     def stepping_stone_working(self):
 
-        solution = self.north_west_corner()
+        solution = self.ballas_hammer()
+        #print("Degenerée ? : ",is_degenerate(solution))
+        self.fix_E_V(solution)
+        #print("tablop")
+        for i in solution: print(i)
+        #fix_cycle(self,solution)
+
         while True:
+
+
 
             solution_graph = [[0 for i in range(len(self.orders))] for j in range(len(self.provisions))]
             for i in range(len(solution)):
@@ -727,7 +767,6 @@ class transportation_problem():
                     pass
             
             path.pop()
-            print("uhuh")
             orders = self.orders.copy()
             provisions = self.provisions.copy()
             for i in range(len(solution)):
@@ -737,12 +776,9 @@ class transportation_problem():
                         provisions[i] -= solution[i][j]
 
             while path[0][1] != min_indice[0] or path[0][0] != min_indice[1]:
-                print("Path before:", path)
                 path.append(path.pop(0))
-                print("Path before:", path)
             
             max_value_to_add = float('inf')
-            print("uhuh2")
             for i in range(len(path)):
                 if i % 2 == 1:
                     if solution[path[i][0]][path[i][1]] < max_value_to_add:
@@ -756,7 +792,7 @@ class transportation_problem():
                 else:
                     solution[path[i][0]][path[i][1]] -= max_value_to_add
 
-            print("Stepping stone working")
+            #print("Stepping stone working")
             # Création du tableau PrettyTable
             table = PrettyTable()
 
@@ -786,12 +822,11 @@ class transportation_problem():
         # cost cost cost cost cost prov
         # ord ord ord ord ord
         """
-        print("cijij")
         string = ""
         for i in range(len(self.matrix)):
             string += " ".join(str(x) for x in self.matrix[i]) + " " + str(self.provisions[i]) + "\n"
         string += " ".join(str(x) for x in self.orders)
-        print(string)
+        #print(string)
         
 
 
@@ -801,45 +836,119 @@ class transportation_problem():
 
         return f"Orders : {self.orders}\nProvisions : {self.provisions}\nMatrix : {self.matrix}"
 
+class TextStyle:
+    RED = '\033[91m'
+    BOLD = '\033[1m'
+    END = '\033[0m'
+
+
+def complexity_study():
+    Tnw = []
+    Tbh = []
+    SSnw = []
+    SSbh = []
+    n = [10, 40, 100, 400, 1000, 4000, 10000]
+    n_values = ['10', '40', '10^2', '4*10^2', '10^3', '4*10^3', '10^4']
+    for i in n:
+        for j in range(100):
+            matrice = generate(i)
+            start = time.time()
+            matrice.north_west_corner # matrixNW = NW(matrix)
+            end = time.time()
+            Tnw.append((i,end-start))
+            start = time.time()
+            matrice.north_west_corner # SS de matrixNW
+            end = time.time()
+            SSnw.append((i,end-start))
+            start = time.time()
+            matrice.ballas_hammer # matrixBH = BH(matrix)
+            end = time.time()
+            Tbh.append((i,end-start))
+            start = time.time()
+            matrice.ballas_hammer # SS de matrixBH
+            end = time.time()
+            SSbh.append((i,end-start))
+            NW = Tnw + SSnw
+            BH = Tbh + SSbh
+    scatter_plots = [(Tnw, "Tnw"), (Tbh, "Tbh"), (SSnw, "SSnw"), (SSbh, "SSbh"), (NW, "Total North-West"), (BH, "Total Ballass-Hammer")]
+
+    for idx, (data, label) in enumerate(scatter_plots):
+        fig, ax = plt.subplots(figsize=(8, 6))  # Create a new figure for each plot
+        ax.scatter(*zip(*data), s=100)
+        ax.set_title(label)
+        ax.set_xlabel('n')
+        ax.set_ylabel('Time (s)')
+        ax.set_xticks(n)
+        ax.set_xticklabels(n_values)
+        plt.tight_layout()
+        plt.show()
+
+
+def generate(n):
+    matrice = transportation_problem()
+    values = np.random.randint(1, 100, size=n)
+    np.random.shuffle(values)
+    matrice.provisions = values.tolist()
+    np.random.shuffle(values)
+    matrice.orders = values.tolist()
+    matrice.matrix = np.random.randint(1, 100, size=(n, n))
+    return matrice
+
+
 
 def menu():
-    """
-    # Start
-    #     While the user decides to test a transportation problem, do :
-    #         Choice of the problem number to be processed.
-    #         Read the table of constraints from a file and store it in memory
-    #         Create the corresponding matrice representing this table and display it
-    #         Ask the user to choose the algorithm to fix the initial proposal and execute it.
-    #         Display the elements mentioned above when running the two algorithms.
-    #         Run the stepping-stone method with potential, displaying at each iteration :
-    #             ⋆ Displays the transport proposal and the total transport cost.
-    #             ⋆ Test to know if the transport proposal is degenerate.
-    #             ⋆ Modification of the transport graph to obtain a tree, in the cyclic or non connected.
-    #             ⋆ Potentials calculation and display.
-    #             ⋆ Table display : potential costs and marginal costs.
-    #                 ⋆ If not optimal :
-    #                     Displays the edge to be added.
-    #                     Transport maximization on the formed cycle and a new iteration.
-    #                 ⋆ Else exit the loop
-    #                     ⋆ End if
-    #         Display the minimal transportation proposal and its cost.
-    #         Suggest to the user that he/she should change transportation problem
-    #     End while
-    # End
+    # complexity_study()
+    while True:
+        print(TextStyle.RED + TextStyle.BOLD + "\nWelcome to our Operations Research project!" + TextStyle.END)
+        problem_number = int(input("Enter the transportation problem number to be processed (1-12) or 13 to generate a random matrice: "))
+        while not (1 <= problem_number <= 13):
+            print("Invalid input. Please enter an integer between 1 and 12.")
+            problem_number =  int(input("Enter the transportation problem number to be processed (1-12): "))
+        if problem_number == 13:   
+            test = transportation_problem()
+            test.init_random(3,3)
+            print("test :\n",test.matrix)
 
-    """
+        else: 
+            test = transportation_problem('files/problem_'+str(problem_number)+'.txt')
+        print(TextStyle.RED + TextStyle.BOLD + "\nCost Matrix : " + TextStyle.END)
+        # Création du tableau PrettyTable
+        table = PrettyTable()
 
+        num_provisions = len(test.matrix)
+        num_orders = len(test.matrix[0])
+
+        # Ajout de la colonne pour les noms des provisions
+        table.add_column("", ["S " + str(i + 1) for i in range(num_provisions)])
+
+        # Ajout des colonnes pour chaque commande
+        for i in range(num_orders):
+            table.add_column("L " + str(i + 1), [test.matrix[j][i] for j in range(num_provisions)])
+        table.add_column("Provisions", test.provisions)
+        total_orders = sum(test.orders)
+        table.add_row(["Orders"] + test.orders + [total_orders])
+        # Affichage du tableau
+        table.set_style(DOUBLE_BORDER)
+        print(table)
+
+        init_prop = int(input("Choose the initial proposal you want :\n1. North-West\n2.Ballas-Hammer\n"))
+        while not (1 <= init_prop <= 2):
+            print("Invalid input. Please enter 1 or 2.")
+            init_prop = int(input("Choose the initial proposal you want:\n1. North-West\n2.Ballas-Hammer\n"))
+        print("\nTransportation Proposal for", end=" ")
+        if init_prop == 1:
+            print(TextStyle.RED + TextStyle.BOLD + "\nNorth West :" + TextStyle.END)
+            matrice = test.north_west_corner()
+        elif init_prop == 2:
+            print(TextStyle.RED + TextStyle.BOLD + "\nBallas-Hammer :" + TextStyle.END)
+            matrice = test.ballas_hammer()
+        print("Now running the Stepping-Stone method:")
+
+        steppingStone(matrice,test.matrix,[0 for i in range (len(matrice[0]))],[0 for i in range (len(matrice))],test.orders,test.provisions)
+
+        choice = int(input("Do you want to choose another problem number?\n 1. YES\n 2. NO\n"))
+        if choice != 1:
+            print("Exiting...")
+            break
 
 menu()
-
-print("Starting..")
-
-test = transportation_problem('files/problem_6.txt').stepping_stone_working()
-
-
-
-# test2 = transportation_problem('files/problem_6.txt').ballas_hammer()
-
-
-
-# test3 = transportation_problem('files/problem_6.txt').north_west_corner()
