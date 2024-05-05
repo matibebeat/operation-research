@@ -746,35 +746,109 @@ class transportation_problem():
 
 
 def menu():
-    """
-    # Start
-    #     While the user decides to test a transportation problem, do :
-    #         Choice of the problem number to be processed.
-    #         Read the table of constraints from a file and store it in memory
-    #         Create the corresponding matrice representing this table and display it
-    #         Ask the user to choose the algorithm to fix the initial proposal and execute it.
-    #         Display the elements mentioned above when running the two algorithms.
-    #         Run the stepping-stone method with potential, displaying at each iteration :
-    #             ⋆ Displays the transport proposal and the total transport cost.
-    #             ⋆ Test to know if the transport proposal is degenerate.
-    #             ⋆ Modification of the transport graph to obtain a tree, in the cyclic or non connected.
-    #             ⋆ Potentials calculation and display.
-    #             ⋆ Table display : potential costs and marginal costs.
-    #                 ⋆ If not optimal :
-    #                     Displays the edge to be added.
-    #                     Transport maximization on the formed cycle and a new iteration.
-    #                 ⋆ Else exit the loop
-    #                     ⋆ End if
-    #         Display the minimal transportation proposal and its cost.
-    #         Suggest to the user that he/she should change transportation problem
-    #     End while
-    # End
+    while True:
+        print("Welcome to our Operations Research project!\n")
+        problem_number = int(input("Enter the transportation problem number to be processed (1-12): "))
+        while not (1 <= problem_number <= 12):
+            print("Invalid input. Please enter an integer between 1 and 12.")
+            problem_number =  int(input("Enter the transportation problem number to be processed (1-12): "))
+        print("Cost Matrix :\n")
+        #function for cost matrix
+        init_prop = int(input("Choose the initial proposal you want :\n1. North-West\n2.Ballas-Hammer\n"))
+        while not (1 <= init_prop <= 2):
+            print("Invalid input. Please enter 1 or 2.")
+            init_prop = int(input("Choose the initial proposal you want:\n1. North-West\n2.Ballas-Hammer\n"))
+        print("\nTransportation Proposal for", end=" ")
+        if init_prop == 1:
+            print("North-West:\n")
+        elif init_prop == 2:
+            print("Ballas-Hammer:\n")
+        #function to show proposal
+        print("Now running the Stepping-Stone method:")
+        #mettre stepping stones 
+        '''
+        For each iteration show:
+        ⋆ Displays the transport proposal and the total transport cost.
+        ⋆ Test to know if the transport proposal is degenerate.
+        ⋆ Modification of the transport graph to obtain a tree, in the cyclic or non connected.
+        ⋆ Potentials calculation and display.
+        ⋆ Table display : potential costs and marginal costs.
+        ⋆ If not optimal :
+        Displays the edge to be added.
+        Transport maximization on the formed cycle and a new iteration.
+        '''
+        print('Minimal tranportation proposal and its cost:')
 
-    """
+        choice = int(input("Do you want to choose another problem number?\n 1. YES\n 2. NO\n"))
+        if choice != 1:
+            print("Exiting...")
+            break
 
 
-menu()
+def generate_random_problem(n):
+    matrix = []
+    random_values = []
+    for i in range(n):
+        row = []
+        for _ in range(n):
+            random_int = random.randint(1, 100)
+            row.append(random_int)
+        matrix.append(row)
+    
+    for i in range(n-1):
+        random_int = random.randint(1, 100)
+        random_values.append(random_int)
+    
+    random.shuffle(random_values)
+    P = random_values.copy()
+    random.shuffle(random_values)
+    C = random_values.copy()
+    
+    return matrix, P, C
+import numpy as np
+import matplotlib.pyplot as plt
+def complexity_study():
+    Tnw = []
+    Tbh = []
+    SSnw = []
+    SSbh = []
+    n = [10, 40, 60, 100, 200, 300, 400]
+    n_values = ['10', '40', '10^2', '4*10^2', '10^3', '4*10^3', '10^4']
+    for i in n:
+        print(i)
+        for j in range(100):
+            print(j)
+            matrix, P, C = generate_random_problem(i)
+            start = time.time()
+            a = 3*matrix # matrixNW = NW(matrix)
+            end = time.time()
+            Tnw.append((i,end-start))
+            start = time.time()
+            b = 100*matrix # SS de matrixNW
+            end = time.time()
+            SSnw.append((i,end-start))
+            start = time.time()
+            c = np.transpose(matrix) # matrixBH = BH(matrix)
+            end = time.time()
+            Tbh.append((i,end-start))
+            start = time.time()
+            g = 2000*matrix # SS de matrixBH
+            end = time.time()
+            SSbh.append((i,end-start))
+    print(SSbh)
+    fig, axs = plt.subplots(2, 2, figsize=(12, 10))
+    scatter_plots = [(Tnw, "Tnw"), (Tbh, "Tbh"), (SSnw, "SSnw"), (SSbh, "SSbh")]
+    for idx, (data, label) in enumerate(scatter_plots):
+        ax = axs[idx // 2, idx % 2]
+        ax.scatter(*zip(*data), s=4)
+        ax.set_title(label)
+        ax.set_xlabel('n')
+        ax.set_ylabel('Time (s)')
+        ax.set_xticks(n)
+        ax.set_xticklabels(n_values)
 
+    plt.tight_layout()
+    plt.show()
 
+complexity_study()
 
-test = transportation_problem('files/essay.txt').stepping_stone_working()
