@@ -1,0 +1,146 @@
+Welcome to our Operations Research project!
+Enter the transportation problem number to be processed (1-12) or 13 to generate a random matrice: 3
+
+Cost Matrix :
+╔════════╦═════╦══════╦════════════╗
+║        ║ L 1 ║ L 2  ║ Provisions ║
+╠════════╬═════╬══════╬════════════╣
+║  S 1   ║  30 ║  20  ║    600     ║
+║  S 2   ║  10 ║  50  ║    500     ║
+║ Orders ║ 100 ║ 1000 ║    1100    ║
+╚════════╩═════╩══════╩════════════╝
+Choose the initial proposal you want :
+1. North-West
+2.Ballas-Hammer
+1
+
+Transportation Proposal for
+North West :
+╔════════╦═════╦══════╦════════════╗
+║        ║ L 1 ║ L 2  ║ Provisions ║
+╠════════╬═════╬══════╬════════════╣
+║  S 1   ║ 100 ║ 500  ║    600     ║
+║  S 2   ║  0  ║ 500  ║    500     ║
+║ Orders ║ 100 ║ 1000 ║    1100    ║
+╚════════╩═════╩══════╩════════════╝
+Now running the Stepping-Stone method:
+The graph is:
+ Graph with 4 nodes and 3 edges
+Potentiels par sommet :
+Sommet C1: 0
+Sommet C2: 10
+Sommet P1: 30
+Sommet P2: 60
+
+-- The potential costs is:
+╔═════════╦═════════╗
+║ Field 1 ║ Field 2 ║
+╠═════════╬═════════╣
+║    30   ║    20   ║
+║    60   ║    50   ║
+╚═════════╩═════════╝
+-- The marginal costs is:
+╔═════════╦═════════╗
+║ Field 1 ║ Field 2 ║
+╠═════════╬═════════╣
+║    0    ║    0    ║
+║   -50   ║    0    ║
+╚═════════╩═════════╝
+Improvement detected : (0, 1)
+The current cost is
+38000
+There is a cycle:  C1 ==>  P1 ==>  C2 ==>  P2 ==>  C1
+
+Potentiels par sommet :
+Sommet C1: 0
+Sommet C2: -40
+Sommet P1: -20
+Sommet P2: 10
+
+-- The potential costs is:
+╔═════════╦═════════╗
+║ Field 1 ║ Field 2 ║
+╠═════════╬═════════╣
+║   -20   ║    20   ║
+║    10   ║    50   ║
+╚═════════╩═════════╝
+-- The marginal costs is:
+╔═════════╦═════════╗
+║ Field 1 ║ Field 2 ║
+╠═════════╬═════════╣
+║    50   ║    0    ║
+║    0    ║    0    ║
+╚═════════╩═════════╝
+No improvement detected.
+╔═══════╦═════╦══════╦═══════════╗
+║   -   ║  C1 ║  C2  ║ Provision ║
+╠═══════╬═════╬══════╬═══════════╣
+║   P1  ║  0  ║ 600  ║    600    ║
+║   P2  ║ 100 ║ 400  ║    500    ║
+║ Order ║ 100 ║ 1000 ║     -     ║
+╚═══════╩═════╩══════╩═══════════╝
+Total cost:  33000
+Do you want to choose another problem number?
+ 1. YES
+ 2. NO
+
+Welcome to our Operations Research project!
+Enter the transportation problem number to be processed (1-12) or 13 to generate a random matrice: 3
+
+Cost Matrix :
+╔════════╦═════╦══════╦════════════╗
+║        ║ L 1 ║ L 2  ║ Provisions ║
+╠════════╬═════╬══════╬════════════╣
+║  S 1   ║  30 ║  20  ║    600     ║
+║  S 2   ║  10 ║  50  ║    500     ║
+║ Orders ║ 100 ║ 1000 ║    1100    ║
+╚════════╩═════╩══════╩════════════╝
+Choose the initial proposal you want :
+1. North-West
+2.Ballas-Hammer
+2
+
+Transportation Proposal for
+Ballas-Hammer :
+╔════════╦═════╦══════╦════════════╗
+║        ║ L 1 ║ L 2  ║ Provisions ║
+╠════════╬═════╬══════╬════════════╣
+║  S 1   ║  0  ║ 600  ║    600     ║
+║  S 2   ║ 100 ║ 400  ║    500     ║
+║ Orders ║ 100 ║ 1000 ║    1100    ║
+╚════════╩═════╩══════╩════════════╝
+Now running the Stepping-Stone method:
+The graph is:
+ Graph with 4 nodes and 3 edges
+Potentiels par sommet :
+Sommet C1: 0
+Sommet C2: -40
+Sommet P1: -20
+Sommet P2: 10
+
+-- The potential costs is:
+╔═════════╦═════════╗
+║ Field 1 ║ Field 2 ║
+╠═════════╬═════════╣
+║   -20   ║    20   ║
+║    10   ║    50   ║
+╚═════════╩═════════╝
+-- The marginal costs is:
+╔═════════╦═════════╗
+║ Field 1 ║ Field 2 ║
+╠═════════╬═════════╣
+║    50   ║    0    ║
+║    0    ║    0    ║
+╚═════════╩═════════╝
+No improvement detected.
+╔═══════╦═════╦══════╦═══════════╗
+║   -   ║  C1 ║  C2  ║ Provision ║
+╠═══════╬═════╬══════╬═══════════╣
+║   P1  ║  0  ║ 600  ║    600    ║
+║   P2  ║ 100 ║ 400  ║    500    ║
+║ Order ║ 100 ║ 1000 ║     -     ║
+╚═══════╩═════╩══════╩═══════════╝
+Total cost:  33000
+Do you want to choose another problem number?
+ 1. YES
+ 2. NO

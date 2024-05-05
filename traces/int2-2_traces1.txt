@@ -1,28 +1,163 @@
-------------------- Transportation Problem : 1 -------------------
+Welcome to our Operations Research project!
+Enter the transportation problem number to be processed (1-12) or 13 to generate a random matrice: & C:/Users/datha/AppData/Local/Programs/Python/Python39/python.exe "c:/Users/datha/OneDrive/Bureau/Git OR/operation-research/main.py"
+Traceback (most recent call last):
+  File "c:\Users\datha\OneDrive\Bureau\Git OR\operation-research\main.py", line 1045, in <module>
+    menu()
+  File "c:\Users\datha\OneDrive\Bureau\Git OR\operation-research\main.py", line 994, in menu
+    problem_number = int(input("Enter the transportation problem number to be processed (1-12) or 13 to generate a random matrice: "))
+ValueError: invalid literal for int() with base 10: '& C:/Users/datha/AppData/Local/Programs/Python/Python39/python.exe "c:/Users/datha/OneDrive/Bureau/Git OR/operation-research/main.py"'
+PS C:\Users\datha\OneDrive\Bureau\Git OR\operation-research> & C:/Users/datha/AppData/Local/Programs/Python/Python39/python.exe "c:/Users/datha/OneDrive/Bureau/Git OR/operation-research/main.py"
 
-Graph : 
-30 20 100
-10 50 100
-100 100
+Welcome to our Operations Research project!
+Enter the transportation problem number to be processed (1-12) or 13 to generate a random matrice: 1
 
-------------------- North-West Corner Method -------------------
-Time : 0 
+Cost Matrix :
+╔════════╦═════╦═════╦════════════╗
+║        ║ L 1 ║ L 2 ║ Provisions ║
+╠════════╬═════╬═════╬════════════╣
+║  S 1   ║  30 ║  20 ║    100     ║
+║  S 2   ║  10 ║  50 ║    100     ║
+║ Orders ║ 100 ║ 100 ║    200     ║
+╚════════╩═════╩═════╩════════════╝
+Choose the initial proposal you want :
+1. North-West
+2.Ballas-Hammer
+1
 
-100 0 |100
-0 100 |100
-100 100 
+Transportation Proposal for
+North West :
+╔════════╦═════╦═════╦════════════╗
+║        ║ L 1 ║ L 2 ║ Provisions ║
+╠════════╬═════╬═════╬════════════╣
+║  S 1   ║ 100 ║  0  ║    100     ║
+║  S 2   ║  0  ║ 100 ║    100     ║
+║ Orders ║ 100 ║ 100 ║    200     ║
+╚════════╩═════╩═════╩════════════╝
+Now running the Stepping-Stone method:
+The graph is:
+ Graph with 4 nodes and 2 edges
+The graph is degenerate
+Sub graph: {'P1', 'C1'}
+Sub graph: {'P2', 'C2'}
+Potentiels par sommet :
+Sommet C1: 0
+Sommet C2: -40
+Sommet P1: 30
+Sommet P2: 10
 
-------------------- Ballas-Hamer method -------------------
-Time : 0 
+-- The potential costs is:
+╔═════════╦═════════╗
+║ Field 1 ║ Field 2 ║
+╠═════════╬═════════╣
+║    30   ║    70   ║
+║    10   ║    50   ║
+╚═════════╩═════════╝
+-- The marginal costs is:
+╔═════════╦═════════╗
+║ Field 1 ║ Field 2 ║
+╠═════════╬═════════╣
+║    0    ║   -50   ║
+║    0    ║    0    ║
+╚═════════╩═════════╝
+Improvement detected : (1, 0)
+The current cost is
+8000
+There is a cycle:  C1 ==>  P1 ==>  C2 ==>  P2 ==>  C1
 
-0 100 |100
-100 0 |100
-100 100 
+Potentiels par sommet :
+Sommet C1: 0
+Sommet C2: 10
+Sommet P1: 30
+Sommet P2: 10
 
-------------------- stepping stone -------------------
-Time : 0 
+-- The potential costs is:
+╔═════════╦═════════╗
+║ Field 1 ║ Field 2 ║
+╠═════════╬═════════╣
+║    30   ║    20   ║
+║    10   ║    0    ║
+╚═════════╩═════════╝
+-- The marginal costs is:
+╔═════════╦═════════╗
+║ Field 1 ║ Field 2 ║
+╠═════════╬═════════╣
+║    0    ║    0    ║
+║    0    ║    50   ║
+╚═════════╩═════════╝
+No improvement detected.
+╔═══════╦═════╦═════╦═══════════╗
+║   -   ║  C1 ║  C2 ║ Provision ║
+╠═══════╬═════╬═════╬═══════════╣
+║   P1  ║  0  ║ 100 ║    100    ║
+║   P2  ║ 100 ║  0  ║    100    ║
+║ Order ║ 100 ║ 100 ║     -     ║
+╚═══════╩═════╩═════╩═══════════╝
+Total cost:  3000
+Do you want to choose another problem number?
+ 1. YES
+ 2. NO
+  
 
-100 0 |100
-0 100 |100
-100 100 
+Welcome to our Operations Research project!
+Enter the transportation problem number to be processed (1-12) or 13 to generate a random matrice: 1
 
+Cost Matrix :
+╔════════╦═════╦═════╦════════════╗
+║        ║ L 1 ║ L 2 ║ Provisions ║
+╠════════╬═════╬═════╬════════════╣
+║  S 1   ║  30 ║  20 ║    100     ║
+║  S 2   ║  10 ║  50 ║    100     ║
+║ Orders ║ 100 ║ 100 ║    200     ║
+╚════════╩═════╩═════╩════════════╝
+Choose the initial proposal you want :
+1. North-West
+2.Ballas-Hammer
+2
+
+Transportation Proposal for
+Ballas-Hammer :
+╔════════╦═════╦═════╦════════════╗
+║        ║ L 1 ║ L 2 ║ Provisions ║
+╠════════╬═════╬═════╬════════════╣
+║  S 1   ║  0  ║ 100 ║    100     ║
+║  S 2   ║ 100 ║  0  ║    100     ║
+║ Orders ║ 100 ║ 100 ║    200     ║
+╚════════╩═════╩═════╩════════════╝
+Now running the Stepping-Stone method:
+The graph is:
+ Graph with 4 nodes and 2 edges
+The graph is degenerate
+Sub graph: {'P2', 'C1'}
+Sub graph: {'P1', 'C2'}
+Potentiels par sommet :
+Sommet C1: 0
+Sommet C2: 10
+Sommet P1: 30
+Sommet P2: 10
+
+-- The potential costs is:
+╔═════════╦═════════╗
+║ Field 1 ║ Field 2 ║
+╠═════════╬═════════╣
+║    30   ║    20   ║
+║    10   ║    0    ║
+╚═════════╩═════════╝
+-- The marginal costs is:
+╔═════════╦═════════╗
+║ Field 1 ║ Field 2 ║
+╠═════════╬═════════╣
+║    0    ║    0    ║
+║    0    ║    50   ║
+╚═════════╩═════════╝
+No improvement detected.
+╔═══════╦═════╦═════╦═══════════╗
+║   -   ║  C1 ║  C2 ║ Provision ║
+╠═══════╬═════╬═════╬═══════════╣
+║   P1  ║  0  ║ 100 ║    100    ║
+║   P2  ║ 100 ║  0  ║    100    ║
+║ Order ║ 100 ║ 100 ║     -     ║
+╚═══════╩═════╩═════╩═══════════╝
+Total cost:  3000
+Do you want to choose another problem number?
+ 1. YES
+ 2. NO

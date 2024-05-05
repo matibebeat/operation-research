@@ -857,34 +857,37 @@ def complexity_study():
     MAX_NW = []
     MAX_BH = []
     MAX_COMP = []
+    triche = [1,2,3,4,5,6,7]
+
 
     n = [10, 40, 100, 400, 1000, 4000, 10000]
     n_values = ['10', '40', '10^2', '4*10^2', '10^3', '4*10^3', '10^4']
     k=0
+    t=0
     for i in n:
+        t+=1
         for j in range(100):
-            matrice = generate(i)
+
+            matrice = transportation_problem(x=n,y=n)
             start = time.time()
-            matrice.north_west_corner # matrixNW = NW(matrix)
+            a = matrice.north_west_corner() # matrixNW = NW(matrix)
             end = time.time()
-            Tnw.append((i,end-start))
+            Tnw.append((t,end-start))
             start = time.time()
-            a = matrice.north_west_corner # SS de matrixNW
             steppingStone(a,matrice.matrix,[0 for i in range (len(a[0]))],[0 for i in range (len(a))],matrice.orders,matrice.provisions)
             end = time.time()
-            SSnw.append((i,end-start))
+            SSnw.append((t,end-start))
             start = time.time()
-            c = np.transpose(matrice.ballas_hammer) # matrixBH = BH(matrix)
+            b = matrice.ballas_hammer() # matrixBH = BH(matrix)
             end = time.time()
-            Tbh.append((i,end-start))
+            Tbh.append((t,end-start))
             start = time.time()
-            b = matrice.ballas_hammer
             steppingStone(b,matrice.matrix,[0 for i in range (len(b[0]))],[0 for i in range (len(b))],matrice.orders,matrice.provisions) # SS de matrixBH
             end = time.time()
-            SSbh.append((i,end-start))
-            NW.append((i,Tnw[k][1] + SSnw[k][1]))
-            BH.append((i,Tbh[k][1] + SSbh[k][1]))
-            COMP.append((i,(Tnw[k][1] + SSnw[k][1])/(Tbh[k][1] + SSbh[k][1] + 0.0000001)))
+            SSbh.append((t,end-start))
+            NW.append((t,Tnw[k][1] + SSnw[k][1]))
+            BH.append((t,Tbh[k][1] + SSbh[k][1]))
+            COMP.append((t,(Tnw[k][1] + SSnw[k][1])/(Tbh[k][1] + SSbh[k][1] + 0.0000001)))
             k+=1
         MAX_NW.append((max(NW)))
         MAX_BH.append((max(BH)))
@@ -970,7 +973,7 @@ def complexity_study():
         ax.set_title(label)
         ax.set_xlabel('n')
         ax.set_ylabel('Time (s)')
-        ax.set_xticks(n)
+        ax.set_xticks(triche)
         ax.set_xticklabels(n_values)
         plt.savefig(f'{label}_scatter.png')  
         plt.close() 
@@ -978,17 +981,14 @@ def complexity_study():
 
 def generate(n):
     matrice = transportation_problem()
-    values = np.random.randint(1, 100, size=n)
-    np.random.shuffle(values)
-    matrice.provisions = values.tolist()
-    np.random.shuffle(values)
-    matrice.orders = values.tolist()
-    matrice.matrix = np.random.randint(1, 100, size=(n, n))
-    return matrice
+    matrice.init_random(n,n)
+    print(matrice.costs)
+    print(matrice.orders)
 
 
 
 def menu():
+    # complexity_study()
     while True:
         print(TextStyle.RED + TextStyle.BOLD + "\nWelcome to our Operations Research project!" + TextStyle.END)
         problem_number = int(input("Enter the transportation problem number to be processed (1-12) or 13 to generate a random matrice: "))
