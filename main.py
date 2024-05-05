@@ -8,8 +8,12 @@ from maths import resolve_equation, solve_2nd_order_system
 from graph import find_cycle, get_adgency_matrix , is_cyclic, adjency
 from cycle import detect_cycle
 from math import isnan
+from steppingstone import *
+import numpy as np
+import matplotlib.pyplot as plt
 
-#! renomme les fonctions / variables bg 
+
+
 
 
 def find_minimum_in_matrix(matrix):
@@ -150,6 +154,8 @@ class transportation_problem():
             self.matrix = []
             for elem in content[:-1]:
                 self.matrix.append(list(map(int, elem.split()[:-1])))
+
+        self.cost_matrice = self.matrix.copy()
         self.costs = None
 
 
@@ -834,15 +840,72 @@ class TextStyle:
     END = '\033[0m'
 
 
+def complexity_study():
+    Tnw = []
+    Tbh = []
+    SSnw = []
+    SSbh = []
+    n = [10, 40, 100, 400, 1000, 4000, 10000]
+    n_values = ['10', '40', '10^2', '4*10^2', '10^3', '4*10^3', '10^4']
+    for i in n:
+        for j in range(100):
+            matrice = generate(i)
+            start = time.time()
+            matrice.north_west_corner # matrixNW = NW(matrix)
+            end = time.time()
+            Tnw.append((i,end-start))
+            start = time.time()
+            matrice.north_west_corner # SS de matrixNW
+            end = time.time()
+            SSnw.append((i,end-start))
+            start = time.time()
+            matrice.ballas_hammer # matrixBH = BH(matrix)
+            end = time.time()
+            Tbh.append((i,end-start))
+            start = time.time()
+            matrice.ballas_hammer # SS de matrixBH
+            end = time.time()
+            SSbh.append((i,end-start))
+            NW = Tnw + SSnw
+            BH = Tbh + SSbh
+    scatter_plots = [(Tnw, "Tnw"), (Tbh, "Tbh"), (SSnw, "SSnw"), (SSbh, "SSbh"), (NW, "Total North-West"), (BH, "Total Ballass-Hammer")]
+
+    for idx, (data, label) in enumerate(scatter_plots):
+        fig, ax = plt.subplots(figsize=(8, 6))  # Create a new figure for each plot
+        ax.scatter(*zip(*data), s=100)
+        ax.set_title(label)
+        ax.set_xlabel('n')
+        ax.set_ylabel('Time (s)')
+        ax.set_xticks(n)
+        ax.set_xticklabels(n_values)
+        plt.tight_layout()
+        plt.show()
+
+
+def generate(n):
+    matrice = transportation_problem()
+    values = np.random.randint(1, 100, size=n)
+    np.random.shuffle(values)
+    matrice.provisions = values.tolist()
+    np.random.shuffle(values)
+    matrice.orders = values.tolist()
+    matrice.matrix = np.random.randint(1, 100, size=(n, n))
+    return matrice
+
+
 
 def menu():
+    # complexity_study()
     while True:
         print(TextStyle.RED + TextStyle.BOLD + "\nWelcome to our Operations Research project!" + TextStyle.END)
-        problem_number = int(input("Enter the transportation problem number to be processed (1-12): "))
-        while not (1 <= problem_number <= 12):
+        problem_number = int(input("Enter the transportation problem number to be processed (1-12) or 13 to generate a random matrice: "))
+        while not (1 <= problem_number <= 13):
             print("Invalid input. Please enter an integer between 1 and 12.")
             problem_number =  int(input("Enter the transportation problem number to be processed (1-12): "))
-        test = transportation_problem('files/problem_'+str(problem_number)+'.txt')
+        if problem_number == 13:   
+            test = transportation_problem().init_random(3,3)
+        else: 
+            test = transportation_problem('files/problem_'+str(problem_number)+'.txt')
         print(TextStyle.RED + TextStyle.BOLD + "\nCost Matrix : " + TextStyle.END)
         # Création du tableau PrettyTable
         table = PrettyTable()
@@ -870,23 +933,21 @@ def menu():
         print("\nTransportation Proposal for", end=" ")
         if init_prop == 1:
             print(TextStyle.RED + TextStyle.BOLD + "\nNorth West :" + TextStyle.END)
-            test.north_west_corner()
+            matrice = test.north_west_corner()
         elif init_prop == 2:
             print(TextStyle.RED + TextStyle.BOLD + "\nBallas-Hammer :" + TextStyle.END)
-            test.ballas_hammer()
+            matrice = test.ballas_hammer()
         print("Now running the Stepping-Stone method:")
+        with open('files/problem_'+str(problem_number)+'.txt', 'r') as f:
+            content = f.read().split('\n')
+            for elem in content[:-1]:
+                matrix2 = []
+            for elem in content[:-1]:
+                matrix2.append(list(map(int, elem.split()[:-1])))
+
+        steppingStone(matrice,matrix2,[0 for i in range (len(matrice[0]))],[0 for i in range (len(matrice))],test.orders,test.provisions)
         #mettre stepping stones 
-        '''
-        For each iteration show:
-        ⋆ Displays the transport proposal and the total transport cost.
-        ⋆ Test to know if the transport proposal is degenerate.
-        ⋆ Modification of the transport graph to obtain a tree, in the cyclic or non connected.
-        ⋆ Potentials calculation and display.
-        ⋆ Table display : potential costs and marginal costs.
-        ⋆ If not optimal :
-        Displays the edge to be added.
-        Transport maximization on the formed cycle and a new iteration.
-        '''
+
         print('Minimal tranportation proposal and its cost:')
 
         choice = int(input("Do you want to choose another problem number?\n 1. YES\n 2. NO\n"))
@@ -897,6 +958,8 @@ def menu():
 menu()
 
 # test2 = transportation_problem('files/problem_6.txt').ballas_hammer()
+
+
 
 
 
