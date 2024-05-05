@@ -12,9 +12,18 @@ def get_adgency_matrix(matrix):
     print()
     for i in range(len(matrix)):
         for j in range(len(matrix[0])):
-            if matrix[i][j] == 1:
+            if matrix[i][j] != 0:
                 adjancy_matrix[len(matrix[0])+i][j] = 1
     return adjancy_matrix
+
+def adjency(matrix):
+    adjency_matrix = matrix.copy()
+    for i in range(len(matrix)):
+        for j in range(len(matrix[i])):
+            if adjency_matrix[i][j] > 0:
+                adjency_matrix[i][j] = 1
+
+    return adjency_matrix
 
 
 def find_cycle(adj_matrix, start_edge):

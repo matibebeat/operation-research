@@ -5,7 +5,7 @@ import random
 from prettytable import PrettyTable,DOUBLE_BORDER
 # Our libraries
 from maths import resolve_equation, solve_2nd_order_system
-from graph import find_cycle, get_adgency_matrix , is_cyclic
+from graph import find_cycle, get_adgency_matrix , is_cyclic, adjency
 from cycle import detect_cycle
 from math import isnan
 
@@ -44,7 +44,18 @@ def delayed_print(text):
         time.sleep(delay)
         
 def is_degenerate(matrix):
-    return (is_E_V(matrix) and is_acyclic(matrix))
+    for i in matrix: print
+    print("1 :",is_E_V(matrix))
+    print("2 :",detect_cycle(adjency(matrix)))
+    return is_E_V(matrix) or detect_cycle((adjency(matrix)))
+
+
+def fix_cycle(self,matrix):
+    cycle, path = find_cycle(adjency(matrix),0)
+    print("cycle",cycle)
+    print("path",path)
+
+
 
 def calculate_penalty(costs):
     penalties_row = []
@@ -140,7 +151,24 @@ class transportation_problem():
             for elem in content[:-1]:
                 self.matrix.append(list(map(int, elem.split()[:-1])))
         self.costs = None
-        
+
+
+    def fix_E_V(self, matrix):
+        for i in self.matrix: print (i)
+        matrix_cost = self.matrix 
+        stop = 1
+        while(stop):
+            minimum, minimum_index = find_minimum_in_matrix(matrix_cost)
+            # if meme index ballas = 0 non relié
+            if matrix[minimum_index[0]][minimum_index[1]] == 0:
+                matrix[minimum_index[0]][minimum_index[1]] = 0.00000000000000001
+                if not detect_cycle(adjency(matrix)):
+                    stop = 0
+                else:    
+                    matrix[minimum_index[0]][minimum_index[1]] = 0
+            matrix_cost[minimum_index[0]][minimum_index[1]] = 999    
+        return matrix
+    
     def init_random(self, livreur, client):
         self.orders = []
         self.provisions = []
@@ -639,8 +667,6 @@ class transportation_problem():
         table.set_style(DOUBLE_BORDER)
         print(table)
         return solution
-
-   
     
     def compute_potentials(self, solution):
         string = ""
@@ -676,8 +702,16 @@ class transportation_problem():
     
     def stepping_stone_working(self):
 
-        solution = self.north_west_corner()
+        solution = self.ballas_hammer()
+        print("Degenerée ? : ",is_degenerate(solution))
+        self.fix_E_V(solution)
+        print("tablop")
+        for i in solution: print(i)
+        #fix_cycle(self,solution)
+
         while True:
+
+
 
             solution_graph = [[0 for i in range(len(self.orders))] for j in range(len(self.provisions))]
             for i in range(len(solution)):
@@ -738,8 +772,10 @@ class transportation_problem():
 
             while path[0][1] != min_indice[0] or path[0][0] != min_indice[1]:
                 print("Path before:", path)
+                print("0 : ", min_indice[0])
+                print("1 : ", min_indice[1])
                 path.append(path.pop(0))
-                print("Path before:", path)
+                print("Path after:", path)
             
             max_value_to_add = float('inf')
             print("uhuh2")
