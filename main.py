@@ -155,13 +155,13 @@ class transportation_problem():
             for elem in content[:-1]:
                 self.matrix.append(list(map(int, elem.split()[:-1])))
 
-        self.cost_matrice = self.matrix.copy()
+        self.cost_matrice = copy.deepcopy(self.matrix)
         self.costs = None
 
 
     def fix_E_V(self, matrix):
         #for i in self.matrix: print (i)
-        matrix_cost = self.matrix.copy() 
+        matrix_cost = copy.deepcopy(self.matrix)
         stop = 1
         while(stop):
             minimum, minimum_index = find_minimum_in_matrix(matrix_cost)
@@ -200,6 +200,8 @@ class transportation_problem():
 
         self.matrix = [[random.randint(1, 100) for _ in range(client)] for _ in range(livreur)]
         self.costs = None
+
+        return self
 
     def north_west_corner(self):
         #a 2D list that contains the solution of the problem
@@ -240,7 +242,7 @@ class transportation_problem():
     def ballas_hammer(self): 
         orders = self.orders.copy()
         provisions = self.provisions.copy()
-        costs = self.matrix.copy()
+        costs = copy.deepcopy(self.matrix)
         allocated_costs = [[0] * len(row) for row in costs]
         
         while not all(all(cell == float('inf') for cell in row) for row in costs):
@@ -903,7 +905,10 @@ def menu():
             print("Invalid input. Please enter an integer between 1 and 12.")
             problem_number =  int(input("Enter the transportation problem number to be processed (1-12): "))
         if problem_number == 13:   
-            test = transportation_problem().init_random(3,3)
+            test = transportation_problem()
+            test.init_random(3,3)
+            print("test :\n",test.matrix)
+
         else: 
             test = transportation_problem('files/problem_'+str(problem_number)+'.txt')
         print(TextStyle.RED + TextStyle.BOLD + "\nCost Matrix : " + TextStyle.END)
@@ -938,17 +943,8 @@ def menu():
             print(TextStyle.RED + TextStyle.BOLD + "\nBallas-Hammer :" + TextStyle.END)
             matrice = test.ballas_hammer()
         print("Now running the Stepping-Stone method:")
-        with open('files/problem_'+str(problem_number)+'.txt', 'r') as f:
-            content = f.read().split('\n')
-            for elem in content[:-1]:
-                matrix2 = []
-            for elem in content[:-1]:
-                matrix2.append(list(map(int, elem.split()[:-1])))
 
-        steppingStone(matrice,matrix2,[0 for i in range (len(matrice[0]))],[0 for i in range (len(matrice))],test.orders,test.provisions)
-        #mettre stepping stones 
-
-        print('Minimal tranportation proposal and its cost:')
+        steppingStone(matrice,test.matrix,[0 for i in range (len(matrice[0]))],[0 for i in range (len(matrice))],test.orders,test.provisions)
 
         choice = int(input("Do you want to choose another problem number?\n 1. YES\n 2. NO\n"))
         if choice != 1:
@@ -956,11 +952,3 @@ def menu():
             break
 
 menu()
-
-# test2 = transportation_problem('files/problem_6.txt').ballas_hammer()
-
-
-
-
-
-# test3 = transportation_problem('files/problem_6.txt').north_west_corner()
