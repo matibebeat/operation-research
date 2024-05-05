@@ -9,7 +9,7 @@ def get_adgency_matrix(matrix):
                 adjancy_matrix[i][len(matrix)+j] = 1
 
     matrix = list(zip(*matrix))
-    print()
+    # print()
     for i in range(len(matrix)):
         for j in range(len(matrix[0])):
             if matrix[i][j] != 0:
@@ -72,9 +72,9 @@ matrix = [
     [0, 1]
 ]
 
-print(get_adgency_matrix(matrix))
+# print(get_adgency_matrix(matrix))
 
-print(find_cycle(get_adgency_matrix(matrix),2)) 
+# print(find_cycle(get_adgency_matrix(matrix),2)) 
 """
 [[0, 0, 0, 0, 1, 0], 
 [0, 0, 0, 0, 1, t], 

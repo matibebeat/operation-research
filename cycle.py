@@ -13,7 +13,6 @@ def get_adgency_matrix(matrix):
                 adjancy_matrix[i][len(matrix) + j] = 1
 
     matrix = list(zip(*matrix))
-    print()
     for i in range(len(matrix)):
         for j in range(len(matrix[0])):
             if matrix[i][j] == 1:
@@ -56,7 +55,7 @@ def find_path(adj_matrix, start_edge):
 
 start_edge = 6  # Starting edge index
 
-print(get_adgency_matrix(matrix))
+# print(get_adgency_matrix(matrix))
 
 # Matrices d'adjacence pour des graphes avec 5 à 10 sommets
 
@@ -121,8 +120,8 @@ def detect_cycle(matrix):
 
     # Checking if there is no more row/column to remove
     if len(memory) == 0:
-        print(f"\n End Matrix \n")
-        printMatrix(matrix)
+        #print(f"\n End Matrix \n")
+        #printMatrix(matrix)
         return True
 
     # Remove row/column of index in memory
@@ -138,8 +137,8 @@ def detect_cycle(matrix):
     if len(matrix) > 0:
         return False or detect_cycle(matrix)
     else:
-        print(f"\n End Matrix \n")
-        printMatrix(matrix)
+        #print(f"\n End Matrix \n")
+        #printMatrix(matrix)
         return False
 
 
@@ -147,6 +146,6 @@ def detect_cycle(matrix):
 
 
 # Affichage des matrices d'adjacence
-for i, graph in enumerate(graphs, start=1):
-    print(f"Graphe {i}:")
-    print(f"Is there a Cycle : {detect_cycle(graph)}")
+# for i, graph in enumerate(graphs, start=1):
+#     print(f"Graphe {i}:")
+#     print(f"Is there a Cycle : {detect_cycle(graph)}")
