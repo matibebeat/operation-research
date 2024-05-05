@@ -847,8 +847,20 @@ def complexity_study():
     Tbh = []
     SSnw = []
     SSbh = []
+    NW = []
+    BH = []
+    COMP = []
+    MAX_SSbh = []
+    MAX_SSnw = []
+    MAX_Tnw = []
+    MAX_Tbh = []
+    MAX_NW = []
+    MAX_BH = []
+    MAX_COMP = []
+
     n = [10, 40, 100, 400, 1000, 4000, 10000]
     n_values = ['10', '40', '10^2', '4*10^2', '10^3', '4*10^3', '10^4']
+    k=0
     for i in n:
         for j in range(100):
             matrice = generate(i)
@@ -857,31 +869,111 @@ def complexity_study():
             end = time.time()
             Tnw.append((i,end-start))
             start = time.time()
-            matrice.north_west_corner # SS de matrixNW
+            a = matrice.north_west_corner # SS de matrixNW
+            steppingStone(a,matrice.matrix,[0 for i in range (len(a[0]))],[0 for i in range (len(a))],matrice.orders,matrice.provisions)
             end = time.time()
             SSnw.append((i,end-start))
             start = time.time()
-            matrice.ballas_hammer # matrixBH = BH(matrix)
+            c = np.transpose(matrice.ballas_hammer) # matrixBH = BH(matrix)
             end = time.time()
             Tbh.append((i,end-start))
             start = time.time()
-            matrice.ballas_hammer # SS de matrixBH
+            b = matrice.ballas_hammer
+            steppingStone(b,matrice.matrix,[0 for i in range (len(b[0]))],[0 for i in range (len(b))],matrice.orders,matrice.provisions) # SS de matrixBH
             end = time.time()
             SSbh.append((i,end-start))
-            NW = Tnw + SSnw
-            BH = Tbh + SSbh
-    scatter_plots = [(Tnw, "Tnw"), (Tbh, "Tbh"), (SSnw, "SSnw"), (SSbh, "SSbh"), (NW, "Total North-West"), (BH, "Total Ballass-Hammer")]
+            NW.append((i,Tnw[k][1] + SSnw[k][1]))
+            BH.append((i,Tbh[k][1] + SSbh[k][1]))
+            COMP.append((i,(Tnw[k][1] + SSnw[k][1])/(Tbh[k][1] + SSbh[k][1] + 0.0000001)))
+            k+=1
+        MAX_NW.append((max(NW)))
+        MAX_BH.append((max(BH)))
+        MAX_SSbh.append((max(SSbh)))
+        MAX_SSnw.append((max(SSnw)))
+        MAX_Tbh.append((max(Tbh)))
+        MAX_Tnw.append((max(Tnw)))
+        MAX_COMP.append((max(COMP)))
 
+    plt.figure(figsize=(8, 6))
+    plt.plot(n_values, [val[1] for val in MAX_NW], marker='o')
+    plt.title('MAX_NW')
+    plt.xlabel('n')
+    plt.ylabel('Max Value')
+    plt.tight_layout()
+    plt.savefig('MAX_NW.png')
+    plt.close()
+
+    # Plotting MAX_COMP
+    plt.figure(figsize=(8, 6))
+    plt.plot(n_values, [val[1] for val in MAX_COMP], marker='o')
+    plt.title('Max Complexity Comparison')
+    plt.xlabel('n')
+    plt.ylabel('Max Value')
+    plt.tight_layout()
+    plt.savefig('MAX_COMP.png')
+    plt.close()
+
+    # Plotting MAX_BH
+    plt.figure(figsize=(8, 6))
+    plt.plot(n_values, [val[1] for val in MAX_BH], marker='o')
+    plt.title('MAX_BH')
+    plt.xlabel('n')
+    plt.ylabel('Max Value')
+    plt.tight_layout()
+    plt.savefig('MAX_BH.png')
+    plt.close()
+
+    # Plotting MAX_SSbh
+    plt.figure(figsize=(8, 6))
+    plt.plot(n_values, [val[1] for val in MAX_SSbh], marker='o')
+    plt.title('MAX_SSbh')
+    plt.xlabel('n')
+    plt.ylabel('Max Value')
+    plt.tight_layout()
+    plt.savefig('MAX_SSbh.png')
+    plt.close()
+
+    # Plotting MAX_SSnw
+    plt.figure(figsize=(8, 6))
+    plt.plot(n_values, [val[1] for val in MAX_SSnw], marker='o')
+    plt.title('MAX_SSnw')
+    plt.xlabel('n')
+    plt.ylabel('Max Value')
+    plt.tight_layout()
+    plt.savefig('MAX_SSnw.png')
+    plt.close()
+
+    # Plotting MAX_Tbh
+    plt.figure(figsize=(8, 6))
+    plt.plot(n_values, [val[1] for val in MAX_Tbh], marker='o')
+    plt.title('MAX_Tbh')
+    plt.xlabel('n')
+    plt.ylabel('Max Value')
+    plt.tight_layout()
+    plt.savefig('MAX_Tbh.png')
+    plt.close()
+
+    # Plotting MAX_Tnw
+    plt.figure(figsize=(8, 6))
+    plt.plot(n_values, [val[1] for val in MAX_Tnw], marker='o')
+    plt.title('MAX_Tnw')
+    plt.xlabel('n')
+    plt.ylabel('Max Value')
+    plt.tight_layout()
+    plt.savefig('MAX_Tnw.png')
+    plt.close()
+
+    scatter_plots = [(Tnw, "Tnw"), (Tbh, "Tbh"), (SSnw, "SSnw"), (SSbh, "SSbh"), (NW, "Total North-West"), (BH, "Total Ballass-Hammer"),(COMP,"Complexity Comparison")]
     for idx, (data, label) in enumerate(scatter_plots):
-        fig, ax = plt.subplots(figsize=(8, 6))  # Create a new figure for each plot
-        ax.scatter(*zip(*data), s=100)
+        fig, ax = plt.subplots(figsize=(8, 6)) 
+        ax.scatter(*zip(*data), s=4)
         ax.set_title(label)
         ax.set_xlabel('n')
         ax.set_ylabel('Time (s)')
         ax.set_xticks(n)
         ax.set_xticklabels(n_values)
-        plt.tight_layout()
-        plt.show()
+        plt.savefig(f'{label}_scatter.png')  
+        plt.close() 
 
 
 def generate(n):
@@ -897,7 +989,6 @@ def generate(n):
 
 
 def menu():
-    # complexity_study()
     while True:
         print(TextStyle.RED + TextStyle.BOLD + "\nWelcome to our Operations Research project!" + TextStyle.END)
         problem_number = int(input("Enter the transportation problem number to be processed (1-12) or 13 to generate a random matrice: "))
