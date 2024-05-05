@@ -6,6 +6,7 @@ from prettytable import PrettyTable,DOUBLE_BORDER
 # Our libraries
 from maths import resolve_equation, solve_2nd_order_system
 from graph import find_cycle, get_adgency_matrix , is_cyclic
+from cycle import detect_cycle
 from math import isnan
 
 #! renomme les fonctions / variables bg 
@@ -178,8 +179,26 @@ class transportation_problem():
                 solution[i][j] = min(provisions[i], orders[j])
                 provisions[i] -= solution[i][j]
                 orders[j] -= solution[i][j]
-        
-       
+
+        print("North West")
+        table = PrettyTable()
+
+        num_provisions = len(solution)
+        num_orders = len(solution[0])
+
+        # Ajout de la colonne pour les noms des provisions
+        table.add_column("", ["S " + str(i + 1) for i in range(num_provisions)])
+
+        # Ajout des colonnes pour chaque commande
+        for i in range(num_orders):
+            table.add_column("L " + str(i + 1), [solution[j][i] for j in range(num_provisions)])
+        table.add_column("Provisions", self.provisions)
+        total_orders = sum(self.orders)
+        table.add_row(["Orders"] + self.orders + [total_orders])
+        # Affichage du tableau
+        table.set_style(DOUBLE_BORDER)
+        print(table)   
+               
                 
         
         
@@ -249,6 +268,25 @@ class transportation_problem():
             print(row)
         print("\n--- END Processing ---\n")"""
 
+        print("Ballas Hammer")
+        table = PrettyTable()
+
+        num_provisions = len(allocated_costs)
+        num_orders = len(allocated_costs[0])
+
+        # Ajout de la colonne pour les noms des provisions
+        table.add_column("", ["S " + str(i + 1) for i in range(num_provisions)])
+
+        # Ajout des colonnes pour chaque commande
+        for i in range(num_orders):
+            table.add_column("L " + str(i + 1), [allocated_costs[j][i] for j in range(num_provisions)])
+        table.add_column("Provisions", self.provisions)
+        total_orders = sum(self.orders)
+        table.add_row(["Orders"] + self.orders + [total_orders])
+        # Affichage du tableau
+        table.set_style(DOUBLE_BORDER)
+        print(table)
+
         return allocated_costs
         
     def compute_cost(self, solution):
@@ -258,9 +296,9 @@ class transportation_problem():
                 cost += solution[i][j] * self.matrix[i][j]
         return cost
 
-    """ def stepping_stone(self):
+    def stepping_stone(self):
+        
         # TO DO : implement the stepping stone method
-        """
         # Solving algorithm : the stepping-stone method with potential.
         #     ⋆ Test whether the proposition is acyclic : we’ll use a Breadth-first algorithm. During the algorithm run, as the vertices are discovered, we check that we’re returning to a previously
         #        visited vertex and that this vertex isn’t the parent of the current vertex ; if it is, then a cycle exists. The cycle is then displayed.
@@ -275,115 +313,115 @@ class transportation_problem():
         #     ⋆ Add this improving edge to the transport proposal, if it has been detected.
 
     
-    """    solution = self.north_west_corner()
+        solution = self.north_west_corner()
         while True:
-        #     if is_cyclic(solution):
-        #         for i in range(len(solution)):
-        #             cycle, vertices = find_cycle(get_adgency_matrix(solution), i)
-        #             if path:
-        #                 break
-        #         print("Cycle found:", path)
-        #         path=[]
-        #         for i in range(len(cycle)):
-        #             #find the max value of cycle[i]
-        #             if cycle[i][0] < cycle[i][1] :
-        #                 y= cycle[i][1]-len(self.provisions)
-        #                 x= cycle[i][0]
-        #             else:
-        #                 x= cycle[i][0]-len(self.provisions)
-        #                 y= cycle[i][1]
-        #             path.append((x,y))
-        #         for i in range(len(path)):
-        #             if i % 2 == 0:
-        #                 path[i] = (path[i][1], path[i][0])
-        #             else:
-        #                 pass
+            if is_cyclic(solution):
+                for i in range(len(solution)):
+                    cycle, vertices = find_cycle(get_adgency_matrix(solution), i)
+                    if path:
+                        break
+                print("Cycle found:", path)
+                path=[]
+                for i in range(len(cycle)):
+                    #find the max value of cycle[i]
+                    if cycle[i][0] < cycle[i][1] :
+                        y= cycle[i][1]-len(self.provisions)
+                        x= cycle[i][0]
+                    else:
+                        x= cycle[i][0]-len(self.provisions)
+                        y= cycle[i][1]
+                    path.append((x,y))
+                for i in range(len(path)):
+                    if i % 2 == 0:
+                        path[i] = (path[i][1], path[i][0])
+                    else:
+                        pass
 
-        #         orders = self.orders.copy()
-        #         provisions = self.provisions.copy()
+                orders = self.orders.copy()
+                provisions = self.provisions.copy()
 
 
-        #         for i in range(len(solution)):
-        #             for j in range(len(solution[i])):
-        #                 if (i,j) not in path:
-        #                     orders[j] -= solution[i][j]
-        #                     provisions[i] -= solution[i][j]
+                for i in range(len(solution)):
+                    for j in range(len(solution[i])):
+                        if (i,j) not in path:
+                            orders[j] -= solution[i][j]
+                            provisions[i] -= solution[i][j]
 
-        #         path.pop()
-        #         max_value_to_add = float('inf')
-        #         for i in range(len(path)):
-        #             if i % 2 == 0:
-        #                 if solution[path[i][0]][path[i][1]] < max_value_to_add:
-        #                     max_value_to_add = solution[path[i][0]][path[i][1]]
-        #             else:
-        #                 pass
+                path.pop()
+                max_value_to_add = float('inf')
+                for i in range(len(path)):
+                    if i % 2 == 0:
+                        if solution[path[i][0]][path[i][1]] < max_value_to_add:
+                            max_value_to_add = solution[path[i][0]][path[i][1]]
+                    else:
+                        pass
                 
-        #         for i in range(len(path[1:])):
-        #             if i % 2 == 0:
-        #                 solution[path[i][1]][path[i][0]] += max_value_to_add
-        #             else:
-        #                 solution[path[i][1]][path[i][0]] -= max_value_to_add
+                for i in range(len(path[1:])):
+                    if i % 2 == 0:
+                        solution[path[i][1]][path[i][0]] += max_value_to_add
+                    else:
+                        solution[path[i][1]][path[i][0]] -= max_value_to_add
 
 
 
-        #     #cas ou la solution est acyclique mais v!=e-1    
-        #     vertices = 0
-        #     edges = 0
-        #     for i in range(len(solution)):
-        #         for j in range(len(solution[i])):
-        #             if solution[i][j] != 0:
-        #                 edges += 1
+            #cas ou la solution est acyclique mais v!=e-1    
+            vertices = 0
+            edges = 0
+            for i in range(len(solution)):
+                for j in range(len(solution[i])):
+                    if solution[i][j] != 0:
+                        edges += 1
             
-        #     for i in range(len(solution)):
-        #         if sum(solution[i]) != 0:
-        #             vertices += 1
-        #     for i in range(len(solution[0])):
-        #         if sum([solution[j][i] for j in range(len(solution))]) != 0:
-        #             vertices += 1
+            for i in range(len(solution)):
+                if sum(solution[i]) != 0:
+                    vertices += 1
+            for i in range(len(solution[0])):
+                if sum([solution[j][i] for j in range(len(solution))]) != 0:
+                    vertices += 1
 
-        #     solution_graph = [[0 for i in range(len(self.orders))] for j in range(len(self.provisions))]
-        #     for i in range(len(solution)):
-        #         for j in range(len(solution[i])):
-        #             if solution[i][j] != 0:
-        #                 solution_graph[i][j] = 1
+            solution_graph = [[0 for i in range(len(self.orders))] for j in range(len(self.provisions))]
+            for i in range(len(solution)):
+                for j in range(len(solution[i])):
+                    if solution[i][j] != 0:
+                        solution_graph[i][j] = 1
 
-        #     #if the graph is cyclic we need to find the cycle and delete an edge
+            #if the graph is cyclic we need to find the cycle and delete an edge
             
-        #     while edges != vertices - 1:
-        #         #!we need to add an edge to the solution
-        #         #we will find the edge with the lowest transport cost, check if we add it we will have a cycle
-        #         min_cost = float('inf')
-        #         min_indice = []
-        #         for i in range(len(self.matrix)):
-        #             for j in range(len(self.matrix[i])):
-        #                 if self.matrix[i][j] < min_cost and solution_graph[i][j] == 0:
-        #                     #we make temp_solution wich is the solution with the edge added with a value of 1 for each edge
-        #                     temp_solution = [[0 for i in range(len(solution[0]))] for j in range(len(solution))]
-        #                     for k in range(len(temp_solution)):
-        #                         for l in range(len(temp_solution[k])):
-        #                             if temp_solution[k][l] != 0:
-        #                                 temp_solution[k][l] = 1
-        #                     temp_solution[i][j] = 1
-        #                     if not is_cyclic(temp_solution):
-        #                         min_cost = self.matrix[i][j]
-        #                         min_indice = [i, j]
+            while edges != vertices - 1:
+                #!we need to add an edge to the solution
+                #we will find the edge with the lowest transport cost, check if we add it we will have a cycle
+                min_cost = float('inf')
+                min_indice = []
+                for i in range(len(self.matrix)):
+                    for j in range(len(self.matrix[i])):
+                        if self.matrix[i][j] < min_cost and solution_graph[i][j] == 0:
+                            #we make temp_solution wich is the solution with the edge added with a value of 1 for each edge
+                            temp_solution = [[0 for i in range(len(solution[0]))] for j in range(len(solution))]
+                            for k in range(len(temp_solution)):
+                                for l in range(len(temp_solution[k])):
+                                    if temp_solution[k][l] != 0:
+                                        temp_solution[k][l] = 1
+                            temp_solution[i][j] = 1
+                            if not is_cyclic(temp_solution):
+                                min_cost = self.matrix[i][j]
+                                min_indice = [i, j]
 
-        #         debug = 0   
-        #         solution_graph[min_indice[0]][min_indice[1]] = 1
+                debug = 0   
+                solution_graph[min_indice[0]][min_indice[1]] = 1
 
-        #         vertices = 0
-        #         edges = 0
-        #         for i in range(len(solution_graph)):
-        #             for j in range(len(solution_graph[i])):
-        #                 if solution_graph[i][j] != 0:
-        #                     edges += 1
+                vertices = 0
+                edges = 0
+                for i in range(len(solution_graph)):
+                    for j in range(len(solution_graph[i])):
+                        if solution_graph[i][j] != 0:
+                            edges += 1
             
-        #         for i in range(len(solution_graph)):
-        #             if sum(solution_graph[i]) != 0:
-        #                 vertices += 1
-        #         for i in range(len(solution_graph[0])):
-        #             if sum([solution_graph[j][i] for j in range(len(solution_graph))]) != 0:
-        #                 vertices += 1       
+                for i in range(len(solution_graph)):
+                    if sum(solution_graph[i]) != 0:
+                        vertices += 1
+                for i in range(len(solution_graph[0])):
+                    if sum([solution_graph[j][i] for j in range(len(solution_graph))]) != 0:
+                        vertices += 1       
             solution_graph = [[0 for i in range(len(self.orders))] for j in range(len(self.provisions))]
             for i in range(len(solution)):
                 for j in range(len(solution[i])):
@@ -501,35 +539,34 @@ class transportation_problem():
 
 
 
-            """ 
-            #check if the number of edges is equal to the number of vertices -1
-    # vertices = 0
-    # edges = 0
-    # for i in range(len(solution)):
-    #     for j in range(len(solution[i])):
-    #         if solution[i][j] != 0:
-    #             edges += 1
             
-    # for i in range(len(solution)):
-    #     if sum(solution[i]) != 0:
-    #         vertices += 1
-    # for i in range(len(solution[0])):
-    #     if sum([solution[j][i] for j in range(len(solution))]) != 0:
-    #         vertices += 1
+        #check if the number of edges is equal to the number of vertices -1
+        vertices = 0
+        edges = 0
+        for i in range(len(solution)):
+            for j in range(len(solution[i])):
+                if solution[i][j] != 0:
+                    edges += 1
+                
+        for i in range(len(solution)):
+            if sum(solution[i]) != 0:
+                vertices += 1
+        for i in range(len(solution[0])):
+            if sum([solution[j][i] for j in range(len(solution))]) != 0:
+                vertices += 1
 
-    # solution_graph = [[0 for i in range(len(self.orders))] for j in range(len(self.provisions))]
-    # for i in range(len(solution)):
-    #     for j in range(len(solution[i])):
-    #         if solution[i][j] != 0:
-    #             solution_graph[i][j] = 1
-
-    """           
+        solution_graph = [[0 for i in range(len(self.orders))] for j in range(len(self.provisions))]
+        for i in range(len(solution)):
+            for j in range(len(solution[i])):
+                if solution[i][j] != 0:
+                    solution_graph[i][j] = 1
+           
         if is_cyclic(solution_graph):
             print("The solution is cyclic")
             #! we need to find the cycle
             adj_matrix = get_adgency_matrix(solution_graph)
             for i in range(len(solution_graph)):
-                raise Exception("Cycle found")
+                # raise Exception("Cycle found")
                 cycle, path = find_cycle(adj_matrix, i)
                 if cycle:
                     print("Cycle found:", cycle)
@@ -565,27 +602,45 @@ class transportation_problem():
                             min_cost = self.matrix[i][j]
                             min_indice = [i, j]
 
-            debug = 0   
-            solution_graph[min_indice[0]][min_indice[1]] = 1
+        debug = 0   
+        solution_graph[min_indice[0]][min_indice[1]] = 1
 
-            vertices = 0
-            edges = 0
-            for i in range(len(solution_graph)):
-                for j in range(len(solution_graph[i])):
-                    if solution_graph[i][j] != 0:
-                        edges += 1
+        vertices = 0
+        edges = 0
+        for i in range(len(solution_graph)):
+            for j in range(len(solution_graph[i])):
+                if solution_graph[i][j] != 0:
+                    edges += 1
             
-            for i in range(len(solution_graph)):
-                if sum(solution_graph[i]) != 0:
-                    vertices += 1
-            for i in range(len(solution_graph[0])):
-                if sum([solution_graph[j][i] for j in range(len(solution_graph))]) != 0:
-                    vertices += 1
+        for i in range(len(solution_graph)):
+            if sum(solution_graph[i]) != 0:
+                vertices += 1
+        for i in range(len(solution_graph[0])):
+            if sum([solution_graph[j][i] for j in range(len(solution_graph))]) != 0:
+                vertices += 1
 
-        
-        # return solution
-        pass
-    """    
+        print("Stepping stone classic")
+        # Création du tableau PrettyTable
+        table = PrettyTable()
+
+        num_provisions = len(solution)
+        num_orders = len(solution[0])
+
+        # Ajout de la colonne pour les noms des provisions
+        table.add_column("", ["S " + str(i + 1) for i in range(num_provisions)])
+
+        # Ajout des colonnes pour chaque commande
+        for i in range(num_orders):
+            table.add_column("L " + str(i + 1), [solution[j][i] for j in range(num_provisions)])
+        table.add_column("Provisions", self.provisions)
+        total_orders = sum(self.orders)
+        table.add_row(["Orders"] + self.orders + [total_orders])
+        # Affichage du tableau
+        table.set_style(DOUBLE_BORDER)
+        print(table)
+        return solution
+
+   
     
     def compute_potentials(self, solution):
         string = ""
@@ -649,6 +704,7 @@ class transportation_problem():
 
             start_edge = min_indice[1] 
             cycle, vertices = find_cycle(get_adgency_matrix(solution_graph), start_edge)
+            print("Cycle :",cycle)
             
             if not cycle:
                 start_edge = min_indice[0]+ len(self.orders)
@@ -671,10 +727,9 @@ class transportation_problem():
                     pass
             
             path.pop()
-
+            print("uhuh")
             orders = self.orders.copy()
             provisions = self.provisions.copy()
-
             for i in range(len(solution)):
                 for j in range(len(solution[i])):
                     if (i,j) not in path:
@@ -682,10 +737,12 @@ class transportation_problem():
                         provisions[i] -= solution[i][j]
 
             while path[0][1] != min_indice[0] or path[0][0] != min_indice[1]:
+                print("Path before:", path)
                 path.append(path.pop(0))
+                print("Path before:", path)
             
             max_value_to_add = float('inf')
-
+            print("uhuh2")
             for i in range(len(path)):
                 if i % 2 == 1:
                     if solution[path[i][0]][path[i][1]] < max_value_to_add:
@@ -693,13 +750,13 @@ class transportation_problem():
                 else:
                     if max(provisions[path[i][0]], orders[path[i][1]]) < max_value_to_add:
                         max_value_to_add = max(provisions[path[i][0]], orders[path[i][1]])
-
             for i in range(len(path)):
                 if i % 2 == 0:
                     solution[path[i][0]][path[i][1]] += max_value_to_add
                 else:
                     solution[path[i][0]][path[i][1]] -= max_value_to_add
 
+            print("Stepping stone working")
             # Création du tableau PrettyTable
             table = PrettyTable()
 
@@ -775,6 +832,14 @@ def menu():
 
 menu()
 
+print("Starting..")
+
+test = transportation_problem('files/problem_6.txt').stepping_stone_working()
 
 
-test = transportation_problem('files/essay.txt').stepping_stone_working()
+
+# test2 = transportation_problem('files/problem_6.txt').ballas_hammer()
+
+
+
+# test3 = transportation_problem('files/problem_6.txt').north_west_corner()
