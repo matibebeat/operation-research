@@ -4,7 +4,6 @@ import time
 import random
 from prettytable import PrettyTable,DOUBLE_BORDER
 # Our libraries
-
 from maths import resolve_equation, solve_2nd_order_system
 from graph import find_cycle, get_adgency_matrix , is_cyclic
 from cycle import detect_cycle
@@ -710,7 +709,6 @@ class transportation_problem():
             if not cycle:
                 start_edge = min_indice[0]+ len(self.orders)
                 cycle, vertices = find_cycle(get_adgency_matrix(solution_graph), start_edge)
-            min_indice = [cycle[i][0], cycle[i][1]]
             path=[]
             for i in range(len(cycle)):
                 #find the max value of cycle[i]
@@ -738,11 +736,11 @@ class transportation_problem():
                         orders[j] -= solution[i][j]
                         provisions[i] -= solution[i][j]
 
-            while path[0] != min_indice:
+            while path[0][1] != min_indice[0] or path[0][0] != min_indice[1]:
                 print("Path before:", path)
                 path.append(path.pop(0))
-                print("Path after:", path)
-                print("Min indice:", min_indice)
+                print("Path before:", path)
+            
             max_value_to_add = float('inf')
             print("uhuh2")
             for i in range(len(path)):
